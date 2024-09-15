@@ -23,4 +23,5 @@ jobs:
         with:
           imageName: ghcr.io/antonjahn/linux-bazel-devcontainer
           cacheFrom: ghcr.io/antonjahn/linux-bazel-devcontainer
+          push: always
           runCmd: bazel build //:install_linux_headers
