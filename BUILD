@@ -133,3 +133,67 @@ genrule(
         tar czf "$@" -C "$$LFS" .
     """,
 )
+
+genrule(
+    name = "build_glibc",
+    srcs = [
+        "@glibc_tarball//file",
+        "@glibc_fsh_patch//file",
+        "linux_headers_installed.tar.gz",
+        "binutils_pass1_installed.tar.gz",
+        "gcc_pass1_installed.tar.gz",
+    ],
+    outs = ["glibc_installed.tar.gz"],
+    cmd = """
+        set -euo pipefail
+        set -x
+        START_DIR="$$PWD"
+        export LFS="$$PWD/lfs"
+        export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
+        export PATH="$$LFS/tools/bin:$$PATH"
+        mkdir -p "$$LFS/tools"
+
+        # Extract dependencies
+        tar xf $(location linux_headers_installed.tar.gz) -C "$$LFS"
+        tar xf $(location binutils_pass1_installed.tar.gz) -C "$$LFS/tools"
+        tar xf $(location gcc_pass1_installed.tar.gz) -C "$$LFS/tools"
+
+        case $$(uname -m) in
+            i?86)   ln -sfv ld-linux.so.2 $$LFS/lib/ld-lsb.so.3
+            ;;
+            x86_64) mkdir -p $$LFS/lib64
+                    ln -sfv ../lib/ld-linux-x86-64.so.2 $$LFS/lib64
+                    ln -sfv ../lib/ld-linux-x86-64.so.2 $$LFS/lib64/ld-lsb-x86-64.so.3
+            ;;
+        esac
+
+        # Extract Glibc source
+        mkdir -p glibc-build
+        tar xf $(location @glibc_tarball//file) -C glibc-build --strip-components=1
+        cd glibc-build
+
+        # Apply patch
+        patch -Np1 -i ../$(location @glibc_fsh_patch//file)
+
+        mkdir -v build
+        cd build
+        echo "rootsbindir=/usr/sbin" > configparms
+        ../configure                             \
+            --prefix="/usr"                      \
+            --host="$$LFS_TGT"                   \
+            --build="$$(../scripts/config.guess)"\
+            --enable-kernel=4.19                 \
+            --with-headers="$$LFS/usr/include"   \
+            --disable-nscd                       \
+            libc_cv_slibdir=/usr/lib
+
+        make -j"$$(nproc)"
+        make DESTDIR="$$LFS" install
+
+        # Fix hard coded path to executable loader in the ldd script
+        sed '/RTLDLIST=/s@/usr@@g' -i $$LFS/usr/bin/ldd
+
+        cd "$$START_DIR"
+        tar czf "$@" -C "$$LFS" .
+    """,
+)
