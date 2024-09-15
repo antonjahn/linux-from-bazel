@@ -9,7 +9,7 @@
     },
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
     // "forwardPorts": [],
-    "postCreateCommand": "bash .devcontainer/post_create.sh && bash scripts/version-check.sh",
+    "postCreateCommand": ".devcontainer/post_create.sh && scripts/version-check.sh",
     "customizations": {
         "vscode": {
             "extensions": [
