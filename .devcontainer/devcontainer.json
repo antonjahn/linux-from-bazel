@@ -2,7 +2,6 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
     "name": "Ubuntu",
-    // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
     "image": "mcr.microsoft.com/devcontainers/base:jammy",
     // Features to add to the dev container. More info: https://containers.dev/features.
     "features": {
@@ -10,9 +9,13 @@
     },
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
     // "forwardPorts": [],
-    // Configure tool-specific properties.
-    // "customizations": {},
-    "postCreateCommand": "bash .devcontainer/post_create.sh && bash scripts/version-check.sh"
-    // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-    // "remoteUser": "root"
+    "postCreateCommand": "bash .devcontainer/post_create.sh && bash scripts/version-check.sh",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "github.vscode-github-actions",
+                "BazelBuild.vscode-bazel"
+            ]
+        }
+    }
 }
