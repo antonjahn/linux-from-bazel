@@ -15,4 +15,6 @@ jobs:
       - name: Build and run dev container task
         uses: devcontainers/ci@v0.3
         with:
+          imageName: ghcr.io/antonjahn/linux-bazel-devcontainer
+          cacheFrom: ghcr.io/antonjahn/linux-bazel-devcontainer
           runCmd: bazel build //:install_linux_headers
