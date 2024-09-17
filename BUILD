@@ -253,3 +253,42 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """,
 )
+
+genrule(
+    name = "build_m4",
+    srcs = [
+        "@m4_tarball//file",
+        "binutils_pass1_installed.tar",
+        "gcc_pass1_installed.tar",
+        "glibc_installed.tar",
+        "libstdcxx_installed.tar",
+    ],
+    outs = ["m4_installed.tar"],
+    cmd = """
+        set -euo pipefail
+        set -x
+        START_DIR="$$PWD"
+        export LFS="/tmp/lfs"
+        export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
+        export PATH="$$LFS/tools/bin:$$PATH"
+        mkdir -p "$$LFS/tools"
+
+        # Extract dependencies
+        tar xf $(location binutils_pass1_installed.tar) -C "$$LFS"
+        tar xf $(location gcc_pass1_installed.tar) -C "$$LFS"
+        tar xf $(location glibc_installed.tar) -C "$$LFS"
+        # tar xf $(location libstdcxx_installed.tar) -C "$$LFS"
+
+        # Extract M4 source
+        mkdir -p m4-build
+        tar xf $(location @m4_tarball//file) -C m4-build --strip-components=1
+        cd m4-build
+
+        ./configure --prefix=/usr --host=$$LFS_TGT --build=$$(build-aux/config.guess)
+        make -j"$$(nproc)"
+        make DESTDIR="$$LFS" install
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)

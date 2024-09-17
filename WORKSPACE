@@ -11,6 +11,8 @@ load(
     "GLIBC_VERSION",
     "LINUX_KERNEL_SHA256",
     "LINUX_KERNEL_VERSION",
+    "M4_SHA256",
+    "M4_VERSION",
 )
 
 http_file(
@@ -41,4 +43,10 @@ http_file(
     name = "glibc_fsh_patch",
     sha256 = "643552db030e2f2d7ffde4f558e0f5f83d3fabf34a2e0e56ebdb49750ac27b0d",
     urls = ["https://www.linuxfromscratch.org/patches/lfs/12.2/glibc-2.40-fhs-1.patch"],
+)
+
+http_file(
+    name = "m4_tarball",
+    sha256 = M4_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/m4/m4-{}.tar.xz".format(M4_VERSION)],
 )
