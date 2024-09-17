@@ -254,6 +254,43 @@ genrule(
     """,
 )
 
+COMMON_SCRIPT = """
+set -euo pipefail
+set -x
+START_DIR="$$PWD"
+export LFS="/tmp/lfs"
+export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
+export PATH="$$LFS/tools/bin:$$PATH"
+mkdir -p "$$LFS"
+
+EXTRACTED_FILES="$$START_DIR/extracted_files.txt"
+
+extract_dependency() {
+    set +x
+    tar -xvf "$$1" -C "$$LFS" | while read -r file; do
+        # Handle absolute paths and remove leading '/'
+        sanitized_file="$${file#*/}"
+        echo "$$LFS/$$sanitized_file" >> "$$EXTRACTED_FILES"
+    done
+    set -x
+}
+
+cleanup_extracted_dependencies() {
+    set +x
+    while read -r file; do
+        if [ -f "$$file" ]; then
+            rm -f "$$file"
+        elif [ -h "$$file" ]; then
+            rm -f "$$file"
+        fi
+    done < "$$EXTRACTED_FILES"
+
+    # Remove empty directories within LFS
+    find "$$LFS" -type d -empty -delete
+    set -x
+}
+"""
+
 genrule(
     name = "build_m4",
     srcs = [
@@ -261,23 +298,14 @@ genrule(
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
-        "libstdcxx_installed.tar",
     ],
     outs = ["m4_installed.tar"],
     cmd = """
-        set -euo pipefail
-        set -x
-        START_DIR="$$PWD"
-        export LFS="/tmp/lfs"
-        export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
-        export PATH="$$LFS/tools/bin:$$PATH"
-        mkdir -p "$$LFS/tools"
-
-        # Extract dependencies
-        tar xf $(location binutils_pass1_installed.tar) -C "$$LFS"
-        tar xf $(location gcc_pass1_installed.tar) -C "$$LFS"
-        tar xf $(location glibc_installed.tar) -C "$$LFS"
-        # tar xf $(location libstdcxx_installed.tar) -C "$$LFS"
+        {common_script}
+        
+        extract_dependency $(location binutils_pass1_installed.tar)
+        extract_dependency $(location gcc_pass1_installed.tar)
+        extract_dependency $(location glibc_installed.tar)
 
         # Extract M4 source
         mkdir -p m4-build
@@ -288,7 +316,11 @@ genrule(
         make -j"$$(nproc)"
         make DESTDIR="$$LFS" install
 
+        cleanup_extracted_dependencies
+
         cd "$$START_DIR"
         tar cf "$@" -C "$$LFS" .
-    """,
+    """.format(
+        common_script = COMMON_SCRIPT,
+    ),
 )
