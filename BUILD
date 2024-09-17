@@ -1,37 +1,74 @@
 # BUILD
 load("//:versions.bzl", "GLIBC_VERSION")
 
+COMMON_SCRIPT = """
+set -euo pipefail
+set -x
+START_DIR="$$PWD"
+WORK_DIR="/tmp/sandbox"
+export LFS="/tmp/lfs"
+export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
+export PATH="$$LFS/tools/bin:$$PATH"
+mkdir -p "$$LFS"
+mkdir -p "$$WORK_DIR"
+
+EXTRACTED_FILES="$$START_DIR/extracted_files.txt"
+
+extract_dependency() {
+    set +x
+    tar -xvf "$$1" -C "$$LFS" | while read -r file; do
+        # Handle absolute paths and remove leading '/'
+        sanitized_file="$${file#*/}"
+        echo "$$LFS/$$sanitized_file" >> "$$EXTRACTED_FILES"
+    done
+    set -x
+}
+
+cleanup_extracted_dependencies() {
+    set +x
+    while read -r file; do
+        if [ -f "$$file" ]; then
+            rm -f "$$file"
+        elif [ -h "$$file" ]; then
+            rm -f "$$file"
+        fi
+    done < "$$EXTRACTED_FILES"
+
+    # Remove empty directories within LFS
+    find "$$LFS" -type d -empty -delete
+    set -x
+}
+"""
+
 genrule(
     name = "build_binutils_pass1",
     srcs = ["@binutils_tarball//file"],
     outs = ["binutils_pass1_installed.tar"],
     cmd = """
-      set -euo pipefail
-      set -x
-      START_DIR="$$PWD"
-      export LFS="/tmp/lfs"
-      export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
-      export PATH="$$LFS/tools/bin:$$PATH"
-      mkdir -p "$$LFS/tools"
-      mkdir -p binutils-build
-      tar xf $(location @binutils_tarball//file) -C binutils-build --strip-components=1
-      cd binutils-build
-      mkdir -v build
-      cd build
-      ../configure                   \
-          --prefix="$$LFS/tools"     \
-          --with-sysroot="$$LFS"     \
-          --target="$$LFS_TGT"       \
-          --disable-nls              \
-          --disable-werror           \
-          --enable-gprofng=no        \
-          --enable-new-dtags         \
-          --enable-default-hash-style=gnu
-      make -j"$$(nproc)"
-      make install
-      cd "$$START_DIR"
-      tar cf "$@" -C "$$LFS" .
-    """,
+        {common_script}
+
+        mkdir -p binutils-build
+        tar xf $(location @binutils_tarball//file) -C binutils-build --strip-components=1
+        cd binutils-build
+        mkdir -v build
+        cd build
+        ../configure                   \
+            --prefix="$$LFS/tools"     \
+            --with-sysroot="$$LFS"     \
+            --target="$$LFS_TGT"       \
+            --disable-nls              \
+            --disable-werror           \
+            --enable-gprofng=no        \
+            --enable-new-dtags         \
+            --enable-default-hash-style=gnu
+        make -j"$$(nproc)"
+        make install
+
+        cd "$$START_DIR"
+        tar --mtime='2023-01-01 00:00:00' -cf "$@" -C "$$LFS" .
+    """.format(
+        common_script = COMMON_SCRIPT,
+    ),
 )
 
 genrule(
@@ -42,16 +79,9 @@ genrule(
     ],
     outs = ["gcc_pass1_installed.tar"],
     cmd = """
-        set -euo pipefail
-        set -x
-        START_DIR="$$PWD"
-        export LFS="/tmp/lfs"
-        export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
-        export PATH="$$LFS/tools/bin:$$PATH"
-        mkdir -p "$$LFS/tools"
+        {common_script}
 
-        # Extract Binutils into $$LFS/tools
-        tar xf $(location binutils_pass1_installed.tar) -C "$$LFS"
+        extract_dependency $(location binutils_pass1_installed.tar)
 
         mkdir -p gcc-build
         tar xf $(location @gcc_tarball//file) -C gcc-build --strip-components=1
@@ -97,9 +127,12 @@ genrule(
         cat gcc/limitx.h gcc/glimits.h gcc/limity.h > \
             `dirname $$($$LFS_TGT-gcc -print-libgcc-file-name)`/include/limits.h
 
+        cleanup_extracted_dependencies
+
         cd "$$START_DIR"
         tar cf "$@" -C "$$LFS" .
     """.format(
+        common_script = COMMON_SCRIPT,
         glibc_version = GLIBC_VERSION,
     ),
 )
@@ -147,18 +180,11 @@ genrule(
     ],
     outs = ["glibc_installed.tar"],
     cmd = """
-        set -euo pipefail
-        set -x
-        START_DIR="$$PWD"
-        export LFS="/tmp/lfs"
-        export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
-        export PATH="$$LFS/tools/bin:$$PATH"
-        mkdir -p "$$LFS/tools"
+        {common_script}
 
-        # Extract dependencies
-        tar xf $(location linux_headers_installed.tar) -C "$$LFS"
-        tar xf $(location binutils_pass1_installed.tar) -C "$$LFS"
-        tar xf $(location gcc_pass1_installed.tar) -C "$$LFS"
+        extract_dependency $(location linux_headers_installed.tar)
+        extract_dependency $(location binutils_pass1_installed.tar)
+        extract_dependency $(location gcc_pass1_installed.tar)
 
         case $$(uname -m) in
             i?86)   ln -sfv ld-linux.so.2 $$LFS/lib/ld-lsb.so.3
@@ -196,12 +222,16 @@ genrule(
         sed '/RTLDLIST=/s@/usr@@g' -i $$LFS/usr/bin/ldd
 
         # Sanity check
-        echo 'int main(){}' | $$LFS_TGT-gcc -xc -
+        echo 'int main() {{ }}' | $$LFS_TGT-gcc -xc -
         readelf -l a.out | grep ld-linux
+
+        cleanup_extracted_dependencies
 
         cd "$$START_DIR"
         tar cf "$@" -C "$$LFS" .
-    """,
+    """.format(
+        common_script = COMMON_SCRIPT,
+    ),
 )
 
 genrule(
@@ -214,18 +244,11 @@ genrule(
     ],
     outs = ["libstdcxx_installed.tar"],
     cmd = """
-        set -euo pipefail
-        set -x
-        START_DIR="$$PWD"
-        export LFS="/tmp/lfs"
-        export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
-        export PATH="$$LFS/tools/bin:$$PATH"
-        mkdir -p "$$LFS/tools"
+        {common_script}
 
-        # Extract dependencies
-        tar xf $(location binutils_pass1_installed.tar) -C "$$LFS"
-        tar xf $(location gcc_pass1_installed.tar) -C "$$LFS"
-        tar xf $(location glibc_installed.tar) -C "$$LFS"
+        extract_dependency $(location binutils_pass1_installed.tar)
+        extract_dependency $(location gcc_pass1_installed.tar)
+        extract_dependency $(location glibc_installed.tar)
 
         # Extract GCC source
         mkdir -p gcc-build
@@ -247,49 +270,16 @@ genrule(
         make DESTDIR="$$LFS" install
 
         # Remove the libtool archive files
-        rm -v $$LFS/usr/lib/lib{stdc++{,exp,fs},supc++}.la
+        rm -v $$LFS/usr/lib/lib{{stdc++{{,exp,fs}},supc++}}.la
+
+        cleanup_extracted_dependencies
 
         cd "$$START_DIR"
         tar cf "$@" -C "$$LFS" .
-    """,
+    """.format(
+        common_script = COMMON_SCRIPT,
+    ),
 )
-
-COMMON_SCRIPT = """
-set -euo pipefail
-set -x
-START_DIR="$$PWD"
-export LFS="/tmp/lfs"
-export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
-export PATH="$$LFS/tools/bin:$$PATH"
-mkdir -p "$$LFS"
-
-EXTRACTED_FILES="$$START_DIR/extracted_files.txt"
-
-extract_dependency() {
-    set +x
-    tar -xvf "$$1" -C "$$LFS" | while read -r file; do
-        # Handle absolute paths and remove leading '/'
-        sanitized_file="$${file#*/}"
-        echo "$$LFS/$$sanitized_file" >> "$$EXTRACTED_FILES"
-    done
-    set -x
-}
-
-cleanup_extracted_dependencies() {
-    set +x
-    while read -r file; do
-        if [ -f "$$file" ]; then
-            rm -f "$$file"
-        elif [ -h "$$file" ]; then
-            rm -f "$$file"
-        fi
-    done < "$$EXTRACTED_FILES"
-
-    # Remove empty directories within LFS
-    find "$$LFS" -type d -empty -delete
-    set -x
-}
-"""
 
 genrule(
     name = "build_m4",
@@ -302,7 +292,7 @@ genrule(
     outs = ["m4_installed.tar"],
     cmd = """
         {common_script}
-        
+
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
         extract_dependency $(location glibc_installed.tar)
