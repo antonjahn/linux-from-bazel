@@ -294,6 +294,7 @@ genrule(
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
+        "linux_headers_installed.tar",
     ],
     outs = ["m4_installed.tar"],
     cmd = """
@@ -302,6 +303,7 @@ genrule(
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
         extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location linux_headers_installed.tar)
 
         # Extract M4 source
         mkdir -p m4-build
