@@ -30,7 +30,7 @@ genrule(
       make -j"$$(nproc)"
       make install
       cd "$$START_DIR"
-      tar czf "$@" -C "$$LFS/tools" .
+      tar czf "$@" -C "$$LFS" .
     """,
 )
 
@@ -51,7 +51,7 @@ genrule(
         mkdir -p "$$LFS/tools"
 
         # Extract Binutils into $$LFS/tools
-        tar xf $(location binutils_pass1_installed.tar.gz) -C "$$LFS/tools"
+        tar xf $(location binutils_pass1_installed.tar.gz) -C "$$LFS"
 
         mkdir -p gcc-build
         tar xf $(location @gcc_tarball//file) -C gcc-build --strip-components=1
@@ -96,7 +96,7 @@ genrule(
         make install-target-libgcc
 
         cd "$$START_DIR"
-        tar czf "$@" -C "$$LFS/tools" .
+        tar czf "$@" -C "$$LFS" .
     """.format(
         glibc_version = GLIBC_VERSION,
     ),
@@ -155,8 +155,8 @@ genrule(
 
         # Extract dependencies
         tar xf $(location linux_headers_installed.tar.gz) -C "$$LFS"
-        tar xf $(location binutils_pass1_installed.tar.gz) -C "$$LFS/tools"
-        tar xf $(location gcc_pass1_installed.tar.gz) -C "$$LFS/tools"
+        tar xf $(location binutils_pass1_installed.tar.gz) -C "$$LFS"
+        tar xf $(location gcc_pass1_installed.tar.gz) -C "$$LFS"
 
         case $$(uname -m) in
             i?86)   ln -sfv ld-linux.so.2 $$LFS/lib/ld-lsb.so.3
@@ -192,6 +192,56 @@ genrule(
 
         # Fix hard coded path to executable loader in the ldd script
         sed '/RTLDLIST=/s@/usr@@g' -i $$LFS/usr/bin/ldd
+
+        cd "$$START_DIR"
+        tar czf "$@" -C "$$LFS" .
+    """,
+)
+
+genrule(
+    name = "build_libstdcxx",
+    srcs = [
+        "@gcc_tarball//file",
+        "binutils_pass1_installed.tar.gz",
+        "gcc_pass1_installed.tar.gz",
+        "glibc_installed.tar.gz",
+    ],
+    outs = ["libstdcxx_installed.tar.gz"],
+    cmd = """
+        set -euo pipefail
+        set -x
+        START_DIR="$$PWD"
+        export LFS="$$PWD/lfs"
+        export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
+        export PATH="$$LFS/tools/bin:$$PATH"
+        mkdir -p "$$LFS/tools"
+
+        # Extract dependencies
+        tar xf $(location binutils_pass1_installed.tar.gz) -C "$$LFS"
+        tar xf $(location gcc_pass1_installed.tar.gz) -C "$$LFS"
+        tar xf $(location glibc_installed.tar.gz) -C "$$LFS"
+
+        # Extract GCC source
+        mkdir -p gcc-build
+        tar xf $(location @gcc_tarball//file) -C gcc-build --strip-components=1
+        cd gcc-build
+
+        mkdir -v build
+        cd build
+        ../libstdc++-v3/configure            \
+            --host="$$LFS_TGT"               \
+            --build=$$(../config.guess)      \
+            --prefix="/usr"                  \
+            --disable-multilib               \
+            --disable-nls                    \
+            --disable-libstdcxx-pch          \
+            --with-gxx-include-dir=/tools/$$LFS_TGT/include/c++/14.2.0
+
+        make -j"$$(nproc)"
+        make DESTDIR="$$LFS" install
+
+        # Remove the libtool archive files
+        rm -v $$LFS/usr/lib/lib{stdc++{,exp,fs},supc++}.la
 
         cd "$$START_DIR"
         tar czf "$@" -C "$$LFS" .
