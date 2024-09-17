@@ -241,6 +241,7 @@ genrule(
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
+        "linux_headers_installed.tar",
     ],
     outs = ["libstdcxx_installed.tar"],
     cmd = """
@@ -249,6 +250,7 @@ genrule(
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
         extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location linux_headers_installed.tar)
 
         # Extract GCC source
         mkdir -p gcc-build
@@ -271,6 +273,10 @@ genrule(
 
         # Remove the libtool archive files
         rm -v $$LFS/usr/lib/lib{{stdc++{{,exp,fs}},supc++}}.la
+
+        # Sanity check
+        echo '#include <iostream>\nint main(){{std::cout<<"Hello, World!";return 0;}}' | $$LFS_TGT-g++ -xc++ -
+        readelf -l a.out | grep ld-linux
 
         cleanup_extracted_dependencies
 
