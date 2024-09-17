@@ -4,7 +4,7 @@ load("//:versions.bzl", "GLIBC_VERSION")
 genrule(
     name = "build_binutils_pass1",
     srcs = ["@binutils_tarball//file"],
-    outs = ["binutils_pass1_installed.tar.gz"],
+    outs = ["binutils_pass1_installed.tar"],
     cmd = """
       set -euo pipefail
       set -x
@@ -30,7 +30,7 @@ genrule(
       make -j"$$(nproc)"
       make install
       cd "$$START_DIR"
-      tar czf "$@" -C "$$LFS" .
+      tar cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -38,9 +38,9 @@ genrule(
     name = "build_gcc_pass1",
     srcs = [
         "@gcc_tarball//file",
-        "binutils_pass1_installed.tar.gz",
+        "binutils_pass1_installed.tar",
     ],
-    outs = ["gcc_pass1_installed.tar.gz"],
+    outs = ["gcc_pass1_installed.tar"],
     cmd = """
         set -euo pipefail
         set -x
@@ -51,7 +51,7 @@ genrule(
         mkdir -p "$$LFS/tools"
 
         # Extract Binutils into $$LFS/tools
-        tar xf $(location binutils_pass1_installed.tar.gz) -C "$$LFS"
+        tar xf $(location binutils_pass1_installed.tar) -C "$$LFS"
 
         mkdir -p gcc-build
         tar xf $(location @gcc_tarball//file) -C gcc-build --strip-components=1
@@ -98,7 +98,7 @@ genrule(
             `dirname $$($$LFS_TGT-gcc -print-libgcc-file-name)`/include/limits.h
 
         cd "$$START_DIR"
-        tar czf "$@" -C "$$LFS" .
+        tar cf "$@" -C "$$LFS" .
     """.format(
         glibc_version = GLIBC_VERSION,
     ),
@@ -109,7 +109,7 @@ genrule(
     srcs = [
         "@linux_kernel_tarball//file",
     ],
-    outs = ["linux_headers_installed.tar.gz"],
+    outs = ["linux_headers_installed.tar"],
     cmd = """
         set -euo pipefail
         set -x
@@ -132,7 +132,7 @@ genrule(
         cp -rv usr/include "$$LFS/usr"
 
         cd "$$START_DIR"
-        tar czf "$@" -C "$$LFS" .
+        tar cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -141,11 +141,11 @@ genrule(
     srcs = [
         "@glibc_tarball//file",
         "@glibc_fsh_patch//file",
-        "linux_headers_installed.tar.gz",
-        "binutils_pass1_installed.tar.gz",
-        "gcc_pass1_installed.tar.gz",
+        "linux_headers_installed.tar",
+        "binutils_pass1_installed.tar",
+        "gcc_pass1_installed.tar",
     ],
-    outs = ["glibc_installed.tar.gz"],
+    outs = ["glibc_installed.tar"],
     cmd = """
         set -euo pipefail
         set -x
@@ -156,9 +156,9 @@ genrule(
         mkdir -p "$$LFS/tools"
 
         # Extract dependencies
-        tar xf $(location linux_headers_installed.tar.gz) -C "$$LFS"
-        tar xf $(location binutils_pass1_installed.tar.gz) -C "$$LFS"
-        tar xf $(location gcc_pass1_installed.tar.gz) -C "$$LFS"
+        tar xf $(location linux_headers_installed.tar) -C "$$LFS"
+        tar xf $(location binutils_pass1_installed.tar) -C "$$LFS"
+        tar xf $(location gcc_pass1_installed.tar) -C "$$LFS"
 
         case $$(uname -m) in
             i?86)   ln -sfv ld-linux.so.2 $$LFS/lib/ld-lsb.so.3
@@ -200,7 +200,7 @@ genrule(
         readelf -l a.out | grep ld-linux
 
         cd "$$START_DIR"
-        tar czf "$@" -C "$$LFS" .
+        tar cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -208,11 +208,11 @@ genrule(
     name = "build_libstdcxx",
     srcs = [
         "@gcc_tarball//file",
-        "binutils_pass1_installed.tar.gz",
-        "gcc_pass1_installed.tar.gz",
-        "glibc_installed.tar.gz",
+        "binutils_pass1_installed.tar",
+        "gcc_pass1_installed.tar",
+        "glibc_installed.tar",
     ],
-    outs = ["libstdcxx_installed.tar.gz"],
+    outs = ["libstdcxx_installed.tar"],
     cmd = """
         set -euo pipefail
         set -x
@@ -223,9 +223,9 @@ genrule(
         mkdir -p "$$LFS/tools"
 
         # Extract dependencies
-        tar xf $(location binutils_pass1_installed.tar.gz) -C "$$LFS"
-        tar xf $(location gcc_pass1_installed.tar.gz) -C "$$LFS"
-        tar xf $(location glibc_installed.tar.gz) -C "$$LFS"
+        tar xf $(location binutils_pass1_installed.tar) -C "$$LFS"
+        tar xf $(location gcc_pass1_installed.tar) -C "$$LFS"
+        tar xf $(location glibc_installed.tar) -C "$$LFS"
 
         # Extract GCC source
         mkdir -p gcc-build
@@ -250,6 +250,6 @@ genrule(
         rm -v $$LFS/usr/lib/lib{stdc++{,exp,fs},supc++}.la
 
         cd "$$START_DIR"
-        tar czf "$@" -C "$$LFS" .
+        tar cf "$@" -C "$$LFS" .
     """,
 )
