@@ -9,7 +9,7 @@ genrule(
       set -euo pipefail
       set -x
       START_DIR="$$PWD"
-      export LFS="$$PWD/lfs"
+      export LFS="/tmp/lfs"
       export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
       export PATH="$$LFS/tools/bin:$$PATH"
       mkdir -p "$$LFS/tools"
@@ -45,7 +45,7 @@ genrule(
         set -euo pipefail
         set -x
         START_DIR="$$PWD"
-        export LFS="$$PWD/lfs"
+        export LFS="/tmp/lfs"
         export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
         export PATH="$$LFS/tools/bin:$$PATH"
         mkdir -p "$$LFS/tools"
@@ -112,7 +112,7 @@ genrule(
         set -euo pipefail
         set -x
         START_DIR="$$PWD"
-        export LFS="$$PWD/lfs"
+        export LFS="/tmp/lfs"
         export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
         export PATH="$$LFS/tools/bin:$$PATH"
         mkdir -p "$$LFS"
@@ -148,7 +148,7 @@ genrule(
         set -euo pipefail
         set -x
         START_DIR="$$PWD"
-        export LFS="$$PWD/lfs"
+        export LFS="/tmp/lfs"
         export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
         export PATH="$$LFS/tools/bin:$$PATH"
         mkdir -p "$$LFS/tools"
@@ -211,7 +211,7 @@ genrule(
         set -euo pipefail
         set -x
         START_DIR="$$PWD"
-        export LFS="$$PWD/lfs"
+        export LFS="/tmp/lfs"
         export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
         export PATH="$$LFS/tools/bin:$$PATH"
         mkdir -p "$$LFS/tools"
