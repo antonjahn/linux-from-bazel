@@ -195,6 +195,10 @@ genrule(
         # Fix hard coded path to executable loader in the ldd script
         sed '/RTLDLIST=/s@/usr@@g' -i $$LFS/usr/bin/ldd
 
+        # Sanity check
+        echo 'int main(){}' | $$LFS_TGT-gcc -xc -
+        readelf -l a.out | grep ld-linux
+
         cd "$$START_DIR"
         tar czf "$@" -C "$$LFS" .
     """,
