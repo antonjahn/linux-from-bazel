@@ -13,6 +13,8 @@ load(
     "LINUX_KERNEL_VERSION",
     "M4_SHA256",
     "M4_VERSION",
+    "NCURSES_SHA256",
+    "NCURSES_VERSION",
 )
 
 http_file(
@@ -49,4 +51,10 @@ http_file(
     name = "m4_tarball",
     sha256 = M4_SHA256,
     urls = ["https://ftp.gnu.org/gnu/m4/m4-{}.tar.xz".format(M4_VERSION)],
+)
+
+http_file(
+    name = "ncurses_tarball",
+    sha256 = NCURSES_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/ncurses/ncurses-{}.tar.gz".format(NCURSES_VERSION)],
 )
