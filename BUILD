@@ -90,10 +90,12 @@ genrule(
             --disable-libstdcxx                            \
             --enable-languages=c,c++
 
-        make -j"$$(nproc)" all-gcc
-        make -j"$$(nproc)" all-target-libgcc
-        make install-gcc
-        make install-target-libgcc
+        make -j"$$(nproc)"
+        make install
+
+        cd ..
+        cat gcc/limitx.h gcc/glimits.h gcc/limity.h > \
+            `dirname $$($$LFS_TGT-gcc -print-libgcc-file-name)`/include/limits.h
 
         cd "$$START_DIR"
         tar czf "$@" -C "$$LFS" .
