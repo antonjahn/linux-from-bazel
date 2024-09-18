@@ -1,6 +1,6 @@
-# BUILD
 load("//:versions.bzl", "GLIBC_VERSION")
 
+# Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
 set -euo pipefail
 set -x
