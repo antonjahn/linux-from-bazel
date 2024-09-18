@@ -35,6 +35,8 @@ load(
     "NCURSES_VERSION",
     "PATCH_SHA256",
     "PATCH_VERSION",
+    "SED_SHA256",
+    "SED_VERSION",
 )
 
 http_file(
@@ -137,4 +139,10 @@ http_file(
     name = "patch_tarball",
     sha256 = PATCH_SHA256,
     urls = ["https://ftp.gnu.org/gnu/patch/patch-{}.tar.xz".format(PATCH_VERSION)],
+)
+
+http_file(
+    name = "sed_tarball",
+    sha256 = SED_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/sed/sed-{}.tar.xz".format(SED_VERSION)],
 )
