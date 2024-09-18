@@ -33,6 +33,8 @@ load(
     "MAKE_VERSION",
     "NCURSES_SHA256",
     "NCURSES_VERSION",
+    "PATCH_SHA256",
+    "PATCH_VERSION",
 )
 
 http_file(
@@ -129,4 +131,10 @@ http_file(
     name = "make_tarball",
     sha256 = MAKE_SHA256,
     urls = ["https://ftp.gnu.org/gnu/make/make-{}.tar.gz".format(MAKE_VERSION)],
+)
+
+http_file(
+    name = "patch_tarball",
+    sha256 = PATCH_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/patch/patch-{}.tar.xz".format(PATCH_VERSION)],
 )
