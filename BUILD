@@ -672,6 +672,9 @@ genrule(
         tar xf $(location @gawk_tarball//file) -C gawk-build --strip-components=1
         cd gawk-build
 
+        # Make sure unneeded files are not installed
+        sed -i 's/extras//' Makefile.in
+
         ./configure --prefix=/usr --host=$$LFS_TGT --build=$$(build-aux/config.guess)
         make -j"$$(nproc)"
         make DESTDIR=$$LFS install
