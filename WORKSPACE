@@ -29,6 +29,8 @@ load(
     "LINUX_KERNEL_VERSION",
     "M4_SHA256",
     "M4_VERSION",
+    "MAKE_SHA256",
+    "MAKE_VERSION",
     "NCURSES_SHA256",
     "NCURSES_VERSION",
 )
@@ -121,4 +123,10 @@ http_file(
     name = "gzip_tarball",
     sha256 = GZIP_SHA256,
     urls = ["https://ftp.gnu.org/gnu/gzip/gzip-{}.tar.xz".format(GZIP_VERSION)],
+)
+
+http_file(
+    name = "make_tarball",
+    sha256 = MAKE_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/make/make-{}.tar.gz".format(MAKE_VERSION)],
 )
