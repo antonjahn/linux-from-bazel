@@ -39,6 +39,8 @@ load(
     "SED_VERSION",
     "TAR_SHA256",
     "TAR_VERSION",
+    "XZ_SHA256",
+    "XZ_VERSION",
 )
 
 http_file(
@@ -153,4 +155,10 @@ http_file(
     name = "tar_tarball",
     sha256 = TAR_SHA256,
     urls = ["https://ftp.gnu.org/gnu/tar/tar-{}.tar.xz".format(TAR_VERSION)],
+)
+
+http_file(
+    name = "xz_tarball",
+    sha256 = XZ_SHA256,
+    urls = ["https://github.com//tukaani-project/xz/releases/download/v{0}/xz-{0}.tar.xz".format(XZ_VERSION)],
 )
