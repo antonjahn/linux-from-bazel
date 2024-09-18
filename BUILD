@@ -406,3 +406,29 @@ genrule(
         common_script = COMMON_SCRIPT,
     ),
 )
+
+genrule(
+    name = "sanity_check_gxx",
+    srcs = [
+        "binutils_pass1_installed.tar",
+        "gcc_pass1_installed.tar",
+        "glibc_installed.tar",
+        "linux_headers_installed.tar",
+        "libstdcxx_installed.tar",
+    ],
+    outs = ["sanity_check_gxx.txt"],
+    cmd = """
+        {common_script}
+
+        extract_dependency $(location binutils_pass1_installed.tar)
+        extract_dependency $(location gcc_pass1_installed.tar)
+        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location linux_headers_installed.tar)
+        extract_dependency $(location libstdcxx_installed.tar)
+
+        echo '#include <iostream>\nint main(){{std::cout<<"Hello, World!";return 0;}}' | $$LFS_TGT-g++ -xc++ -
+        readelf -l a.out | grep ld-linux > "$@"
+    """.format(
+        common_script = COMMON_SCRIPT,
+    ),
+)
