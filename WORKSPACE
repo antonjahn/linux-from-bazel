@@ -9,6 +9,8 @@ load(
     "BINUTILS_VERSION",
     "COREUTILS_SHA256",
     "COREUTILS_VERSION",
+    "DIFFUTILS_SHA256",
+    "DIFFUTILS_VERSION",
     "GCC_SHA256",
     "GCC_VERSION",
     "GLIBC_SHA256",
@@ -73,4 +75,10 @@ http_file(
     name = "coreutils_tarball",
     sha256 = COREUTILS_SHA256,
     urls = ["https://ftp.gnu.org/gnu/coreutils/coreutils-{}.tar.xz".format(COREUTILS_VERSION)],
+)
+
+http_file(
+    name = "diffutils_tarball",
+    sha256 = DIFFUTILS_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/diffutils/diffutils-{}.tar.xz".format(DIFFUTILS_VERSION)],
 )
