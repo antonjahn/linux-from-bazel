@@ -945,3 +945,55 @@ genrule(
         common_script = COMMON_SCRIPT,
     ),
 )
+
+genrule(
+    name = "build_binutils_pass2",
+    srcs = [
+        "@binutils_tarball//file",
+        "binutils_pass1_installed.tar",
+        "gcc_pass1_installed.tar",
+        "glibc_installed.tar",
+        "linux_headers_installed.tar",
+    ],
+    outs = ["binutils_pass2_installed.tar"],
+    cmd = """
+        {common_script}
+
+        extract_dependency $(location binutils_pass1_installed.tar)
+        extract_dependency $(location gcc_pass1_installed.tar)
+        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location linux_headers_installed.tar)
+
+        # Extract Binutils source
+        mkdir -p binutils-build
+        tar xf $(location @binutils_tarball//file) -C binutils-build --strip-components=1
+        cd binutils-build
+
+        mkdir -v build
+        cd build
+        ../configure                   \
+            --prefix=/usr              \
+            --build=$$(../config.guess)\
+            --host=$$LFS_TGT           \
+            --disable-nls              \
+            --enable-shared            \
+            --enable-gprofng=no        \
+            --disable-werror           \
+            --enable-64-bit-bfd        \
+            --enable-new-dtags         \
+            --enable-default-hash-style=gnu
+
+        make -j"$$(nproc)"
+        make DESTDIR=$$LFS install
+
+        # Remove the libtool archive files
+        rm -v $$LFS/usr/lib/lib{{bfd,ctf,ctf-nobfd,opcodes,sframe}}.{{a,la}}
+
+        cleanup_extracted_dependencies
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        common_script = COMMON_SCRIPT,
+    ),
+)
