@@ -37,6 +37,8 @@ load(
     "PATCH_VERSION",
     "SED_SHA256",
     "SED_VERSION",
+    "TAR_SHA256",
+    "TAR_VERSION",
 )
 
 http_file(
@@ -145,4 +147,10 @@ http_file(
     name = "sed_tarball",
     sha256 = SED_SHA256,
     urls = ["https://ftp.gnu.org/gnu/sed/sed-{}.tar.xz".format(SED_VERSION)],
+)
+
+http_file(
+    name = "tar_tarball",
+    sha256 = TAR_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/tar/tar-{}.tar.xz".format(TAR_VERSION)],
 )
