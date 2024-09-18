@@ -479,3 +479,51 @@ genrule(
         common_script = COMMON_SCRIPT,
     ),
 )
+
+genrule(
+    name = "build_coreutils",
+    srcs = [
+        "@coreutils_tarball//file",
+        "binutils_pass1_installed.tar",
+        "gcc_pass1_installed.tar",
+        "glibc_installed.tar",
+        "linux_headers_installed.tar",
+    ],
+    outs = ["coreutils_installed.tar"],
+    cmd = """
+        {common_script}
+
+        extract_dependency $(location binutils_pass1_installed.tar)
+        extract_dependency $(location gcc_pass1_installed.tar)
+        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location linux_headers_installed.tar)
+
+        # Extract Coreutils source
+        mkdir -p coreutils-build
+        tar xf $(location @coreutils_tarball//file) -C coreutils-build --strip-components=1
+        cd coreutils-build
+
+        ./configure                             \
+            --prefix=/usr                       \
+            --host=$$LFS_TGT                    \
+            --build=$$(build-aux/config.guess)  \
+            --enable-install-program=hostname   \
+            --enable-no-install-program=kill,uptime
+
+        make -j"$$(nproc)"
+        make DESTDIR=$$LFS install
+
+        # Move programs to the final expected locations
+        mv -v $$LFS/usr/bin/chroot              $$LFS/usr/sbin
+        mkdir -pv $$LFS/usr/share/man/man8
+        mv -v $$LFS/usr/share/man/man1/chroot.1 $$LFS/usr/share/man/man8/chroot.8
+        sed -i 's/"1"/"8"/'                     $$LFS/usr/share/man/man8/chroot.8
+
+        cleanup_extracted_dependencies
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        common_script = COMMON_SCRIPT,
+    ),
+)

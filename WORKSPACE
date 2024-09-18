@@ -7,6 +7,8 @@ load(
     "BASH_VERSION",
     "BINUTILS_SHA256",
     "BINUTILS_VERSION",
+    "COREUTILS_SHA256",
+    "COREUTILS_VERSION",
     "GCC_SHA256",
     "GCC_VERSION",
     "GLIBC_SHA256",
@@ -65,4 +67,10 @@ http_file(
     name = "bash_tarball",
     sha256 = BASH_SHA256,
     urls = ["https://ftp.gnu.org/gnu/bash/bash-{}.tar.gz".format(BASH_VERSION)],
+)
+
+http_file(
+    name = "coreutils_tarball",
+    sha256 = COREUTILS_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/coreutils/coreutils-{}.tar.xz".format(COREUTILS_VERSION)],
 )
