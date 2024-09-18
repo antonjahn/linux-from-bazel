@@ -723,3 +723,39 @@ genrule(
         common_script = COMMON_SCRIPT,
     ),
 )
+
+genrule(
+    name = "build_gzip",
+    srcs = [
+        "@gzip_tarball//file",
+        "binutils_pass1_installed.tar",
+        "gcc_pass1_installed.tar",
+        "glibc_installed.tar",
+        "linux_headers_installed.tar",
+    ],
+    outs = ["gzip_installed.tar"],
+    cmd = """
+        {common_script}
+
+        extract_dependency $(location binutils_pass1_installed.tar)
+        extract_dependency $(location gcc_pass1_installed.tar)
+        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location linux_headers_installed.tar)
+
+        # Extract Gzip source
+        mkdir -p gzip-build
+        tar xf $(location @gzip_tarball//file) -C gzip-build --strip-components=1
+        cd gzip-build
+
+        ./configure --prefix=/usr --host=$$LFS_TGT
+        make -j"$$(nproc)"
+        make DESTDIR=$$LFS install
+
+        cleanup_extracted_dependencies
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        common_script = COMMON_SCRIPT,
+    ),
+)

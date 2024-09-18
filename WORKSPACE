@@ -23,6 +23,8 @@ load(
     "GLIBC_VERSION",
     "GREP_SHA256",
     "GREP_VERSION",
+    "GZIP_SHA256",
+    "GZIP_VERSION",
     "LINUX_KERNEL_SHA256",
     "LINUX_KERNEL_VERSION",
     "M4_SHA256",
@@ -113,4 +115,10 @@ http_file(
     name = "grep_tarball",
     sha256 = GREP_SHA256,
     urls = ["https://ftp.gnu.org/gnu/grep/grep-{}.tar.xz".format(GREP_VERSION)],
+)
+
+http_file(
+    name = "gzip_tarball",
+    sha256 = GZIP_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/gzip/gzip-{}.tar.xz".format(GZIP_VERSION)],
 )
