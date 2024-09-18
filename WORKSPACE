@@ -15,6 +15,8 @@ load(
     "FILE_VERSION",
     "FINDUTILS_SHA256",
     "FINDUTILS_VERSION",
+    "GAWK_SHA256",
+    "GAWK_VERSION",
     "GCC_SHA256",
     "GCC_VERSION",
     "GLIBC_SHA256",
@@ -97,4 +99,10 @@ http_file(
     name = "findutils_tarball",
     sha256 = FINDUTILS_SHA256,
     urls = ["https://ftp.gnu.org/gnu/findutils/findutils-{}.tar.xz".format(FINDUTILS_VERSION)],
+)
+
+http_file(
+    name = "gawk_tarball",
+    sha256 = GAWK_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/gawk/gawk-{}.tar.xz".format(GAWK_VERSION)],
 )
