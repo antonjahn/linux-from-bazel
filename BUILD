@@ -563,3 +563,52 @@ genrule(
         common_script = COMMON_SCRIPT,
     ),
 )
+
+genrule(
+    name = "build_file",
+    srcs = [
+        "@file_tarball//file",
+        "binutils_pass1_installed.tar",
+        "gcc_pass1_installed.tar",
+        "glibc_installed.tar",
+        "linux_headers_installed.tar",
+    ],
+    outs = ["file_installed.tar"],
+    cmd = """
+        {common_script}
+
+        extract_dependency $(location binutils_pass1_installed.tar)
+        extract_dependency $(location gcc_pass1_installed.tar)
+        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location linux_headers_installed.tar)
+
+        # Extract File source
+        mkdir -p file-build
+        tar xf $(location @file_tarball//file) -C file-build --strip-components=1
+        cd file-build
+
+        mkdir build
+        pushd build
+            ../configure \
+                --disable-bzlib      \
+                --disable-libseccomp \
+                --disable-xzlib      \
+                --disable-zlib
+        make
+        popd
+
+        ./configure --prefix=/usr --host=$$LFS_TGT --build=$$(./config.guess)
+        make -j"$$(nproc)" FILE_COMPILE=$$(pwd)/build/src/file
+        make DESTDIR=$$LFS install
+
+        # Remove the libtool archive files
+        rm -v $$LFS/usr/lib/libmagic.la
+
+        cleanup_extracted_dependencies
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        common_script = COMMON_SCRIPT,
+    ),
+)

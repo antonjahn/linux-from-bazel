@@ -11,6 +11,8 @@ load(
     "COREUTILS_VERSION",
     "DIFFUTILS_SHA256",
     "DIFFUTILS_VERSION",
+    "FILE_SHA256",
+    "FILE_VERSION",
     "GCC_SHA256",
     "GCC_VERSION",
     "GLIBC_SHA256",
@@ -81,4 +83,10 @@ http_file(
     name = "diffutils_tarball",
     sha256 = DIFFUTILS_SHA256,
     urls = ["https://ftp.gnu.org/gnu/diffutils/diffutils-{}.tar.xz".format(DIFFUTILS_VERSION)],
+)
+
+http_file(
+    name = "file_tarball",
+    sha256 = FILE_SHA256,
+    urls = ["https://astron.com/pub/file/file-{}.tar.gz".format(FILE_VERSION)],
 )
