@@ -21,6 +21,8 @@ load(
     "GCC_VERSION",
     "GLIBC_SHA256",
     "GLIBC_VERSION",
+    "GREP_SHA256",
+    "GREP_VERSION",
     "LINUX_KERNEL_SHA256",
     "LINUX_KERNEL_VERSION",
     "M4_SHA256",
@@ -105,4 +107,10 @@ http_file(
     name = "gawk_tarball",
     sha256 = GAWK_SHA256,
     urls = ["https://ftp.gnu.org/gnu/gawk/gawk-{}.tar.xz".format(GAWK_VERSION)],
+)
+
+http_file(
+    name = "grep_tarball",
+    sha256 = GREP_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/grep/grep-{}.tar.xz".format(GREP_VERSION)],
 )

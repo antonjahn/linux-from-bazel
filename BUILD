@@ -687,3 +687,39 @@ genrule(
         common_script = COMMON_SCRIPT,
     ),
 )
+
+genrule(
+    name = "build_grep",
+    srcs = [
+        "@grep_tarball//file",
+        "binutils_pass1_installed.tar",
+        "gcc_pass1_installed.tar",
+        "glibc_installed.tar",
+        "linux_headers_installed.tar",
+    ],
+    outs = ["grep_installed.tar"],
+    cmd = """
+        {common_script}
+
+        extract_dependency $(location binutils_pass1_installed.tar)
+        extract_dependency $(location gcc_pass1_installed.tar)
+        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location linux_headers_installed.tar)
+
+        # Extract Grep source
+        mkdir -p grep-build
+        tar xf $(location @grep_tarball//file) -C grep-build --strip-components=1
+        cd grep-build
+
+        ./configure --prefix=/usr --host=$$LFS_TGT --build=$$(build-aux/config.guess)
+        make -j"$$(nproc)"
+        make DESTDIR=$$LFS install
+
+        cleanup_extracted_dependencies
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        common_script = COMMON_SCRIPT,
+    ),
+)
