@@ -612,3 +612,39 @@ genrule(
         common_script = COMMON_SCRIPT,
     ),
 )
+
+genrule(
+    name = "build_findutils",
+    srcs = [
+        "@findutils_tarball//file",
+        "binutils_pass1_installed.tar",
+        "gcc_pass1_installed.tar",
+        "glibc_installed.tar",
+        "linux_headers_installed.tar",
+    ],
+    outs = ["findutils_installed.tar"],
+    cmd = """
+        {common_script}
+
+        extract_dependency $(location binutils_pass1_installed.tar)
+        extract_dependency $(location gcc_pass1_installed.tar)
+        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location linux_headers_installed.tar)
+
+        # Extract Findutils source
+        mkdir -p findutils-build
+        tar xf $(location @findutils_tarball//file) -C findutils-build --strip-components=1
+        cd findutils-build
+
+        ./configure --prefix=/usr --host=$$LFS_TGT --build=$$(build-aux/config.guess) --localstatedir=/var/lib/locate
+        make -j"$$(nproc)"
+        make DESTDIR=$$LFS install
+
+        cleanup_extracted_dependencies
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        common_script = COMMON_SCRIPT,
+    ),
+)
