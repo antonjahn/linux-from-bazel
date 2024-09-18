@@ -3,6 +3,8 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
 load(
     "//:versions.bzl",
+    "BASH_SHA256",
+    "BASH_VERSION",
     "BINUTILS_SHA256",
     "BINUTILS_VERSION",
     "GCC_SHA256",
@@ -57,4 +59,10 @@ http_file(
     name = "ncurses_tarball",
     sha256 = NCURSES_SHA256,
     urls = ["https://ftp.gnu.org/gnu/ncurses/ncurses-{}.tar.gz".format(NCURSES_VERSION)],
+)
+
+http_file(
+    name = "bash_tarball",
+    sha256 = BASH_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/bash/bash-{}.tar.gz".format(BASH_VERSION)],
 )

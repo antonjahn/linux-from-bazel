@@ -432,3 +432,50 @@ genrule(
         common_script = COMMON_SCRIPT,
     ),
 )
+
+genrule(
+    name = "build_bash",
+    srcs = [
+        "@bash_tarball//file",
+        "binutils_pass1_installed.tar",
+        "gcc_pass1_installed.tar",
+        "glibc_installed.tar",
+        "linux_headers_installed.tar",
+        "libstdcxx_installed.tar",
+        "ncurses_installed.tar",
+    ],
+    outs = ["bash_installed.tar"],
+    cmd = """
+        {common_script}
+
+        extract_dependency $(location binutils_pass1_installed.tar)
+        extract_dependency $(location gcc_pass1_installed.tar)
+        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location linux_headers_installed.tar)
+        extract_dependency $(location libstdcxx_installed.tar)
+        extract_dependency $(location ncurses_installed.tar)
+
+        # Extract Bash source
+        mkdir -p bash-build
+        tar xf $(location @bash_tarball//file) -C bash-build --strip-components=1
+        cd bash-build
+
+        ./configure --prefix=/usr               \
+            --build=$$(sh support/config.guess) \
+            --host=$$LFS_TGT                    \
+            --without-bash-malloc               \
+            bash_cv_strtold_broken=no
+
+        make -j"$$(nproc)"
+        make DESTDIR=$$LFS install
+        mkdir -pv $$LFS/bin
+        ln -sv bash $$LFS/bin/sh
+
+        cleanup_extracted_dependencies
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        common_script = COMMON_SCRIPT,
+    ),
+)
