@@ -997,3 +997,77 @@ genrule(
         common_script = COMMON_SCRIPT,
     ),
 )
+
+genrule(
+    name = "build_gcc_pass2",
+    srcs = [
+        "@gcc_tarball//file",
+        "binutils_pass1_installed.tar",
+        "gcc_pass1_installed.tar",
+        "glibc_installed.tar",
+        "linux_headers_installed.tar",
+        "libstdcxx_installed.tar",
+    ],
+    outs = ["gcc_pass2_installed.tar"],
+    cmd = """
+        {common_script}
+
+        extract_dependency $(location binutils_pass1_installed.tar)
+        extract_dependency $(location gcc_pass1_installed.tar)
+        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location linux_headers_installed.tar)
+        extract_dependency $(location libstdcxx_installed.tar)
+
+        # Extract GCC source
+        mkdir -p gcc-build
+        tar xf $(location @gcc_tarball//file) -C gcc-build --strip-components=1
+        cd gcc-build
+
+        case $$(uname -m) in
+            x86_64)
+                sed -e '/m64=/s/lib64/lib/' \
+                    -i.orig gcc/config/i386/t-linux64
+            ;;
+        esac
+
+        # Download prerequisites
+        ./contrib/download_prerequisites
+
+        # Override libgcc and libstdc++ build to support POSIX threads
+        sed '/thread_header =/s/@.*@/gthr-posix.h/' \
+            -i libgcc/Makefile.in libstdc++-v3/include/Makefile.in
+
+        mkdir -v build
+        cd build
+        ../configure                                       \
+            --build=$$(../config.guess)                    \
+            --host=$$LFS_TGT                               \
+            --target=$$LFS_TGT                             \
+            LDFLAGS_FOR_TARGET=-L$$PWD/$$LFS_TGT/libgcc    \
+            --prefix=/usr                                  \
+            --with-build-sysroot=$$LFS                     \
+            --enable-default-pie                           \
+            --enable-default-ssp                           \
+            --disable-nls                                  \
+            --disable-multilib                             \
+            --disable-libatomic                            \
+            --disable-libgomp                              \
+            --disable-libquadmath                          \
+            --disable-libsanitizer                         \
+            --disable-libssp                               \
+            --disable-libvtv                               \
+            --enable-languages=c,c++
+
+        make -j"$$(nproc)"
+        make DESTDIR=$$LFS install
+
+        ln -sv gcc $$LFS/usr/bin/cc
+
+        cleanup_extracted_dependencies
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        common_script = COMMON_SCRIPT,
+    ),
+)
