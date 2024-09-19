@@ -21,9 +21,9 @@ ver_check()
    v=$($2 --version 2>&1 | grep -E -o '[0-9]+\.[0-9\.]+[a-z]*' | head -n1)
    if printf '%s\n' $3 $v | sort --version-sort --check &>/dev/null
    then 
-     printf "OK:    %-9s %-6s >= $3\n" "$1" "$v"; return 0;
+     printf "OK:    %-12s %-6s >= $3\n" "$1" "$v"; return 0;
    else 
-     printf "ERROR: %-9s is TOO OLD ($3 or later required)\n" "$1"; 
+     printf "ERROR: %-12s is TOO OLD ($3 or later required)\n" "$1"; 
      return 1; 
    fi
 }
@@ -45,6 +45,7 @@ ver_check Coreutils      sort     8.1 || bail "Coreutils too old, stop"
 ver_check Bash           bash     3.2
 ver_check Binutils       ld       2.13.1
 ver_check Bison          bison    2.7
+ver_check Bubblewrap     bwrap    0.6.1
 ver_check Diffutils      diff     2.8.1
 ver_check Findutils      find     4.2.31
 ver_check Gawk           gawk     4.0.1
