@@ -240,19 +240,15 @@ genrule(
         "linux_headers_installed.tar",
     ],
     outs = ["sanity_check_gcc.txt"],
-    cmd = """
-        {common_script}
-
+    cmd = COMMON_SCRIPT + """
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
         extract_dependency $(location glibc_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
-        echo 'int main() {{ }}' | $$LFS_TGT-gcc -xc -
+        echo 'int main() { }' | $$LFS_TGT-gcc -xc -
         readelf -l a.out | grep ld-linux > "$@"
-    """.format(
-        common_script = COMMON_SCRIPT,
-    ),
+    """,
 )
 
 genrule(
@@ -1006,14 +1002,12 @@ genrule(
         "libstdcxx_installed.tar",
     ],
     outs = ["gcc_pass2_installed.tar"],
-    cmd = """
-        {common_script}
-
-        extract_dependency $(location binutils_pass1_installed.tar)
-        extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
-        extract_dependency $(location linux_headers_installed.tar)
-        extract_dependency $(location libstdcxx_installed.tar)
+    cmd = COMMON_SCRIPT + """
+        for dep in $(SRCS); do
+            if [[ "$$dep" == *_installed.tar ]]; then
+                extract_dependency "$$dep"
+            fi
+        done
 
         # Extract GCC source
         mkdir -p gcc-build
@@ -1064,7 +1058,5 @@ genrule(
 
         cd "$$START_DIR"
         tar cf "$@" -C "$$LFS" .
-    """.format(
-        common_script = COMMON_SCRIPT,
-    ),
+    """,
 )
