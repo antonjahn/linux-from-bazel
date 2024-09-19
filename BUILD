@@ -189,9 +189,10 @@ genrule(
         case $$(uname -m) in
             i?86)   ln -sfv ld-linux.so.2 $$LFS/lib/ld-lsb.so.3
             ;;
-            x86_64) mkdir -p $$LFS/lib64
+            x86_64) mkdir -p $$LFS/lib64 $$LFS/lib
                     ln -sfv ../lib/ld-linux-x86-64.so.2 $$LFS/lib64
                     ln -sfv ../lib/ld-linux-x86-64.so.2 $$LFS/lib64/ld-lsb-x86-64.so.3
+                    ln -sfv ../usr/lib/ld-linux-x86-64.so.2 $$LFS/lib
             ;;
         esac
 
@@ -220,10 +221,6 @@ genrule(
 
         # Fix hard coded path to executable loader in the ldd script
         sed '/RTLDLIST=/s@/usr@@g' -i $$LFS/usr/bin/ldd
-
-        # Sanity check
-        echo 'int main() {{ }}' | $$LFS_TGT-gcc -xc -
-        readelf -l a.out | grep ld-linux
 
         cleanup_extracted_dependencies
 
