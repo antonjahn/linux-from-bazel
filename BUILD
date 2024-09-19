@@ -1060,3 +1060,62 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """,
 )
+
+genrule(
+    name = "image_initial_rootfs",
+    srcs = [
+        "binutils_pass1_installed.tar",
+        "gcc_pass1_installed.tar",
+        "linux_headers_installed.tar",
+        "glibc_installed.tar",
+        "libstdcxx_installed.tar",
+        "m4_installed.tar",
+        "ncurses_installed.tar",
+        "bash_installed.tar",
+        "coreutils_installed.tar",
+        "diffutils_installed.tar",
+        "file_installed.tar",
+        "findutils_installed.tar",
+        "gawk_installed.tar",
+        "grep_installed.tar",
+        "gzip_installed.tar",
+        "make_installed.tar",
+        "patch_installed.tar",
+        "sed_installed.tar",
+        "tar_installed.tar",
+        "xz_installed.tar",
+        "binutils_pass2_installed.tar",
+        "gcc_pass2_installed.tar",
+    ],
+    outs = ["initial_rootfs_image.tar"],
+    cmd = COMMON_SCRIPT + """
+        for dep in $(SRCS); do
+            extract_dependency $$dep
+        done
+
+        # Create the initial chroot environment
+        mkdir -pv $$LFS/{bin,etc,sbin,usr,var}
+        case $$(uname -m) in
+            x86_64) mkdir -pv $$LFS/lib64 ;;
+        esac
+
+        # Static hello world application
+        echo '#include <stdio.h>' > /tmp/hello.c
+        echo "int main() { printf(\\"Hello, minimal rootfs!\\n\\"); return 0; }" >> /tmp/hello.c
+        $$LFS_TGT-gcc -static /tmp/hello.c -o $$LFS/usr/bin/hello
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
+
+sh_binary(
+    name = "run_initial_rootfs",
+    srcs = ["scripts/run_bwrap.sh"],
+    args = [
+        "$(location initial_rootfs_image.tar)",
+    ],
+    data = [
+        "initial_rootfs_image.tar",
+    ],
+)
