@@ -462,7 +462,7 @@ genrule(
         make -j"$$(nproc)"
         make DESTDIR=$$LFS install
         mkdir -pv $$LFS/bin
-        ln -sv bash $$LFS/bin/sh
+        ln -sv /usr/bin/bash $$LFS/bin/sh
 
         cleanup_extracted_dependencies
 
