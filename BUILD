@@ -1279,3 +1279,32 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """,
 )
+
+genrule(
+    name = "build_texinfo",
+    srcs = [
+        "@texinfo_src.tar//file",
+        "initial_rootfs_image.tar",
+        "perl_installed.tar",
+    ],
+    outs = ["texinfo_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location initial_rootfs_image.tar)
+        extract_dependency $(location perl_installed.tar)
+
+        extract_source $(location @texinfo_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr
+            make -j$$(nproc)
+            make install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)

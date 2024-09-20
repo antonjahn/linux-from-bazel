@@ -47,6 +47,8 @@ load(
     "SED_VERSION",
     "TAR_SHA256",
     "TAR_VERSION",
+    "TEXINFO_SHA256",
+    "TEXINFO_VERSION",
     "XZ_SHA256",
     "XZ_VERSION",
 )
@@ -193,4 +195,10 @@ http_file(
     name = "python_src.tar",
     sha256 = PYTHON_SHA256,
     urls = ["https://www.python.org/ftp/python/{0}/Python-{0}.tar.xz".format(PYTHON_VERSION)],
+)
+
+http_file(
+    name = "texinfo_src.tar",
+    sha256 = TEXINFO_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/texinfo/texinfo-{}.tar.xz".format(TEXINFO_VERSION)],
 )
