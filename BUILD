@@ -1093,16 +1093,30 @@ genrule(
             extract_dependency $$dep
         done
 
-        # Create the initial chroot environment
+        # Create addtional directories
         mkdir -pv $$LFS/{bin,etc,sbin,usr,var}
         case $$(uname -m) in
             x86_64) mkdir -pv $$LFS/lib64 ;;
         esac
 
-        # Static hello world application
-        echo '#include <stdio.h>' > /tmp/hello.c
-        echo "int main() { printf(\\"Hello, minimal rootfs!\\n\\"); return 0; }" >> /tmp/hello.c
-        $$LFS_TGT-gcc -static /tmp/hello.c -o $$LFS/usr/bin/hello
+        mkdir -pv $$LFS/{boot,home,mnt,opt,srv}
+        mkdir -pv $$LFS/etc/{opt,sysconfig}
+        mkdir -pv $$LFS/lib/firmware
+        mkdir -pv $$LFS/media/{floppy,cdrom}
+        mkdir -pv $$LFS/usr/{,local/}{include,src}
+        mkdir -pv $$LFS/usr/lib/locale
+        mkdir -pv $$LFS/usr/local/{bin,lib,sbin}
+        mkdir -pv $$LFS/usr/{,local/}share/{color,dict,doc,info,locale,man}
+        mkdir -pv $$LFS/usr/{,local/}share/{misc,terminfo,zoneinfo}
+        mkdir -pv $$LFS/usr/{,local/}share/man/man{1..8}
+        mkdir -pv $$LFS/var/{cache,local,log,mail,opt,spool}
+        mkdir -pv $$LFS/var/lib/{color,misc,locate}
+
+        ln -sfv /run $$LFS/var/run
+        ln -sfv /run/lock $$LFS/var/lock
+
+        install -dv -m 0750 $$LFS/root
+        install -dv -m 1777 $$LFS/tmp $$LFS/var/tmp
 
         cd "$$START_DIR"
         tar cf "$@" -C "$$LFS" .
