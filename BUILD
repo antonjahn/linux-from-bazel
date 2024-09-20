@@ -1,4 +1,4 @@
-load("//:versions.bzl", "GLIBC_VERSION")
+load("//:versions.bzl", "GLIBC_VERSION", "BISON_VERSION")
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -1179,4 +1179,33 @@ genrule(
         cd "$$START_DIR"
         tar cf "$@" -C "$$LFS" .
     """,
+)
+
+genrule(
+    name = "build_bison",
+    srcs = [
+        "@bison_tarball//file",
+        "initial_rootfs_image.tar",
+    ],
+    outs = ["bison_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location initial_rootfs_image.tar)
+
+        extract_source $(location @bison_tarball//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr --docdir=/usr/share/doc/bison-{bison_version}
+            make -j$$(nproc)
+            make install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        bison_version = BISON_VERSION,
+    ),
 )

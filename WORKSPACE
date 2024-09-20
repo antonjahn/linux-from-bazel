@@ -7,6 +7,8 @@ load(
     "BASH_VERSION",
     "BINUTILS_SHA256",
     "BINUTILS_VERSION",
+    "BISON_SHA256",
+    "BISON_VERSION",
     "COREUTILS_SHA256",
     "COREUTILS_VERSION",
     "DIFFUTILS_SHA256",
@@ -169,4 +171,10 @@ http_file(
     name = "gettext_tarball",
     sha256 = GETTEXT_SHA256,
     urls = ["https://ftp.gnu.org/gnu/gettext/gettext-{}.tar.xz".format(GETTEXT_VERSION)],
+)
+
+http_file(
+    name = "bison_tarball",
+    sha256 = BISON_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/bison/bison-{}.tar.xz".format(BISON_VERSION)],
 )
