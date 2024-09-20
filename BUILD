@@ -1184,14 +1184,14 @@ genrule(
 genrule(
     name = "build_bison",
     srcs = [
-        "@bison_tarball//file",
+        "@bison_src.tar//file",
         "initial_rootfs_image.tar",
     ],
     outs = ["bison_installed.tar"],
     cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
         extract_dependency $(location initial_rootfs_image.tar)
 
-        extract_source $(location @bison_tarball//file)
+        extract_source $(location @bison_src.tar//file)
 
         run_bash_script_in_lfs "
             cd /src

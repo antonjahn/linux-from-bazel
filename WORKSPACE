@@ -174,7 +174,7 @@ http_file(
 )
 
 http_file(
-    name = "bison_tarball",
+    name = "bison_src.tar",
     sha256 = BISON_SHA256,
     urls = ["https://ftp.gnu.org/gnu/bison/bison-{}.tar.xz".format(BISON_VERSION)],
 )
