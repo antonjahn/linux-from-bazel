@@ -39,6 +39,8 @@ load(
     "NCURSES_VERSION",
     "PATCH_SHA256",
     "PATCH_VERSION",
+    "PERL_SHA256",
+    "PERL_VERSION",
     "SED_SHA256",
     "SED_VERSION",
     "TAR_SHA256",
@@ -177,4 +179,10 @@ http_file(
     name = "bison_src.tar",
     sha256 = BISON_SHA256,
     urls = ["https://ftp.gnu.org/gnu/bison/bison-{}.tar.xz".format(BISON_VERSION)],
+)
+
+http_file(
+    name = "perl_tarball",
+    sha256 = PERL_SHA256,
+    urls = ["https://www.cpan.org/src/5.0/perl-{}.tar.xz".format(PERL_VERSION)],
 )

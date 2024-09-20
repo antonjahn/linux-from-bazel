@@ -1,4 +1,4 @@
-load("//:versions.bzl", "GLIBC_VERSION", "BISON_VERSION")
+load("//:versions.bzl", "BISON_VERSION", "GLIBC_VERSION", "PERL_VERSION")
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -1061,6 +1061,26 @@ genrule(
     """,
 )
 
+ENTER_LFS_SCRIPT = """
+
+run_bash_script_in_lfs() {
+    bwrap --bind $$LFS / --dev /dev --proc /proc --tmpfs /run --unshare-all /usr/bin/env -i \
+            HOME=/root \
+            PATH=/bin:/usr/bin:/usr/sbin \
+            bash -c "$$1"
+}
+
+extract_source() {
+    mkdir -p $$LFS/src
+    tar xf "$$1" -C $$LFS/src --strip-components=1
+}
+
+cleanup_source() {
+    rm -rf $$LFS/src
+}
+
+"""
+
 genrule(
     name = "image_initial_rootfs",
     srcs = [
@@ -1088,7 +1108,7 @@ genrule(
         "gcc_pass2_installed.tar",
     ],
     outs = ["initial_rootfs_image.tar"],
-    cmd = COMMON_SCRIPT + """
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
         for dep in $(SRCS); do
             extract_dependency $$dep
         done
@@ -1118,6 +1138,11 @@ genrule(
         install -dv -m 0750 $$LFS/root
         install -dv -m 1777 $$LFS/tmp $$LFS/var/tmp
 
+        # Create locale definition for downstream packages
+        run_bash_script_in_lfs "
+            localedef -i C -f UTF-8 C.UTF-8
+        "
+
         cd "$$START_DIR"
         tar cf "$@" -C "$$LFS" .
     """,
@@ -1133,26 +1158,6 @@ sh_binary(
         "initial_rootfs_image.tar",
     ],
 )
-
-ENTER_LFS_SCRIPT = """
-
-run_bash_script_in_lfs() {
-    bwrap --bind $$LFS / --dev /dev --proc /proc --tmpfs /run --unshare-all /usr/bin/env -i \
-            HOME=/root \
-            PATH=/usr/bin:/usr/sbin \
-            bash -c "$$1"
-}
-
-extract_source() {
-    mkdir -p $$LFS/src
-    tar xf "$$1" -C $$LFS/src --strip-components=1
-}
-
-cleanup_source() {
-    rm -rf $$LFS/src
-}
-
-"""
 
 genrule(
     name = "build_gettext",
@@ -1207,5 +1212,43 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """.format(
         bison_version = BISON_VERSION,
+    ),
+)
+
+genrule(
+    name = "build_perl",
+    srcs = [
+        "@perl_tarball//file",
+        "initial_rootfs_image.tar",
+    ],
+    outs = ["perl_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location initial_rootfs_image.tar)
+
+        extract_source $(location @perl_tarball//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            /bin/sh Configure -des                                          \
+                -D prefix=/usr                                         \
+                -D vendorprefix=/usr                                   \
+                -D useshrplib                                          \
+                -D privlib=/usr/lib/perl5/{perl_version}/core_perl     \
+                -D archlib=/usr/lib/perl5/{perl_version}/core_perl     \
+                -D sitelib=/usr/lib/perl5/{perl_version}/site_perl     \
+                -D sitearch=/usr/lib/perl5/{perl_version}/site_perl    \
+                -D vendorlib=/usr/lib/perl5/{perl_version}/vendor_perl \
+                -D vendorarch=/usr/lib/perl5/{perl_version}/vendor_perl
+            make -j$$(nproc)
+            make install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        perl_version = PERL_VERSION,
     ),
 )
