@@ -41,6 +41,8 @@ load(
     "PATCH_VERSION",
     "PERL_SHA256",
     "PERL_VERSION",
+    "PYTHON_SHA256",
+    "PYTHON_VERSION",
     "SED_SHA256",
     "SED_VERSION",
     "TAR_SHA256",
@@ -185,4 +187,10 @@ http_file(
     name = "perl_tarball",
     sha256 = PERL_SHA256,
     urls = ["https://www.cpan.org/src/5.0/perl-{}.tar.xz".format(PERL_VERSION)],
+)
+
+http_file(
+    name = "python_src.tar",
+    sha256 = PYTHON_SHA256,
+    urls = ["https://www.python.org/ftp/python/{0}/Python-{0}.tar.xz".format(PYTHON_VERSION)],
 )

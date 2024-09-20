@@ -1252,3 +1252,30 @@ genrule(
         perl_version = PERL_VERSION,
     ),
 )
+
+genrule(
+    name = "build_python",
+    srcs = [
+        "@python_src.tar//file",
+        "initial_rootfs_image.tar",
+    ],
+    outs = ["python_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location initial_rootfs_image.tar)
+
+        extract_source $(location @python_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr --enable-shared --without-ensurepip
+            make -j$$(nproc)
+            make install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
