@@ -19,6 +19,8 @@ load(
     "GAWK_VERSION",
     "GCC_SHA256",
     "GCC_VERSION",
+    "GETTEXT_SHA256",
+    "GETTEXT_VERSION",
     "GLIBC_SHA256",
     "GLIBC_VERSION",
     "GREP_SHA256",
@@ -161,4 +163,10 @@ http_file(
     name = "xz_tarball",
     sha256 = XZ_SHA256,
     urls = ["https://github.com//tukaani-project/xz/releases/download/v{0}/xz-{0}.tar.xz".format(XZ_VERSION)],
+)
+
+http_file(
+    name = "gettext_tarball",
+    sha256 = GETTEXT_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/gettext/gettext-{}.tar.xz".format(GETTEXT_VERSION)],
 )

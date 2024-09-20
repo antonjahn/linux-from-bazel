@@ -1133,3 +1133,50 @@ sh_binary(
         "initial_rootfs_image.tar",
     ],
 )
+
+ENTER_LFS_SCRIPT = """
+
+run_bash_script_in_lfs() {
+    bwrap --bind $$LFS / --dev /dev --proc /proc --tmpfs /run --unshare-all /usr/bin/env -i \
+            HOME=/root \
+            PATH=/usr/bin:/usr/sbin \
+            bash -c "$$1"
+}
+
+extract_source() {
+    mkdir -p $$LFS/src
+    tar xf "$$1" -C $$LFS/src --strip-components=1
+}
+
+cleanup_source() {
+    rm -rf $$LFS/src
+}
+
+"""
+
+genrule(
+    name = "build_gettext",
+    srcs = [
+        "@gettext_tarball//file",
+        "initial_rootfs_image.tar",
+    ],
+    outs = ["gettext_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location initial_rootfs_image.tar)
+
+        extract_source $(location @gettext_tarball//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --disable-shared
+            make -j$$(nproc)
+            cp -v gettext-tools/src/{msgfmt,msgmerge,xgettext} /usr/bin
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
