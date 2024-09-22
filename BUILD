@@ -42,13 +42,13 @@ cleanup_extracted_dependencies() {
 
 genrule(
     name = "build_binutils_pass1",
-    srcs = ["@binutils_tarball//file"],
+    srcs = ["@binutils_src.tar//file"],
     outs = ["binutils_pass1_installed.tar"],
     cmd = """
         {common_script}
 
         mkdir -p binutils-build
-        tar xf $(location @binutils_tarball//file) -C binutils-build --strip-components=1
+        tar xf $(location @binutils_src.tar//file) -C binutils-build --strip-components=1
         cd binutils-build
         mkdir -v build
         cd build
@@ -74,7 +74,7 @@ genrule(
 genrule(
     name = "build_gcc_pass1",
     srcs = [
-        "@gcc_tarball//file",
+        "@gcc_src.tar//file",
         "binutils_pass1_installed.tar",
     ],
     outs = ["gcc_pass1_installed.tar"],
@@ -84,7 +84,7 @@ genrule(
         extract_dependency $(location binutils_pass1_installed.tar)
 
         mkdir -p gcc-build
-        tar xf $(location @gcc_tarball//file) -C gcc-build --strip-components=1
+        tar xf $(location @gcc_src.tar//file) -C gcc-build --strip-components=1
         cd gcc-build
 
         case $$(uname -m) in
@@ -140,7 +140,7 @@ genrule(
 genrule(
     name = "build_linux_headers",
     srcs = [
-        "@linux_kernel_tarball//file",
+        "@linux_kernel_src.tar//file",
     ],
     outs = ["linux_headers_installed.tar"],
     cmd = """
@@ -154,7 +154,7 @@ genrule(
 
         # Extract Linux kernel source
         mkdir -p linux-headers-build
-        tar xf $(location @linux_kernel_tarball//file) -C linux-headers-build --strip-components=1
+        tar xf $(location @linux_kernel_src.tar//file) -C linux-headers-build --strip-components=1
         cd linux-headers-build
 
         make mrproper
@@ -172,7 +172,7 @@ genrule(
 genrule(
     name = "build_glibc",
     srcs = [
-        "@glibc_tarball//file",
+        "@glibc_src.tar//file",
         "@glibc_fsh_patch//file",
         "linux_headers_installed.tar",
         "binutils_pass1_installed.tar",
@@ -198,7 +198,7 @@ genrule(
 
         # Extract Glibc source
         mkdir -p glibc-build
-        tar xf $(location @glibc_tarball//file) -C glibc-build --strip-components=1
+        tar xf $(location @glibc_src.tar//file) -C glibc-build --strip-components=1
         cd glibc-build
 
         # Apply patch
@@ -254,7 +254,7 @@ genrule(
 genrule(
     name = "build_libstdcxx",
     srcs = [
-        "@gcc_tarball//file",
+        "@gcc_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -271,7 +271,7 @@ genrule(
 
         # Extract GCC source
         mkdir -p gcc-build
-        tar xf $(location @gcc_tarball//file) -C gcc-build --strip-components=1
+        tar xf $(location @gcc_src.tar//file) -C gcc-build --strip-components=1
         cd gcc-build
 
         mkdir -v build
@@ -307,7 +307,7 @@ genrule(
 genrule(
     name = "build_m4",
     srcs = [
-        "@m4_tarball//file",
+        "@m4_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -324,7 +324,7 @@ genrule(
 
         # Extract M4 source
         mkdir -p m4-build
-        tar xf $(location @m4_tarball//file) -C m4-build --strip-components=1
+        tar xf $(location @m4_src.tar//file) -C m4-build --strip-components=1
         cd m4-build
 
         ./configure --prefix=/usr --host=$$LFS_TGT --build=$$(build-aux/config.guess)
@@ -343,7 +343,7 @@ genrule(
 genrule(
     name = "build_ncurses",
     srcs = [
-        "@ncurses_tarball//file",
+        "@ncurses_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -362,7 +362,7 @@ genrule(
 
         # Extract Ncurses source
         mkdir -p ncurses-build
-        tar xf $(location @ncurses_tarball//file) -C ncurses-build --strip-components=1
+        tar xf $(location @ncurses_src.tar//file) -C ncurses-build --strip-components=1
         cd ncurses-build
 
         sed -i s/mawk// configure
@@ -429,7 +429,7 @@ genrule(
 genrule(
     name = "build_bash",
     srcs = [
-        "@bash_tarball//file",
+        "@bash_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -450,7 +450,7 @@ genrule(
 
         # Extract Bash source
         mkdir -p bash-build
-        tar xf $(location @bash_tarball//file) -C bash-build --strip-components=1
+        tar xf $(location @bash_src.tar//file) -C bash-build --strip-components=1
         cd bash-build
 
         ./configure --prefix=/usr               \
@@ -477,7 +477,7 @@ genrule(
 genrule(
     name = "build_coreutils",
     srcs = [
-        "@coreutils_tarball//file",
+        "@coreutils_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -494,7 +494,7 @@ genrule(
 
         # Extract Coreutils source
         mkdir -p coreutils-build
-        tar xf $(location @coreutils_tarball//file) -C coreutils-build --strip-components=1
+        tar xf $(location @coreutils_src.tar//file) -C coreutils-build --strip-components=1
         cd coreutils-build
 
         ./configure                             \
@@ -525,7 +525,7 @@ genrule(
 genrule(
     name = "build_diffutils",
     srcs = [
-        "@diffutils_tarball//file",
+        "@diffutils_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -542,7 +542,7 @@ genrule(
 
         # Extract Diffutils source
         mkdir -p diffutils-build
-        tar xf $(location @diffutils_tarball//file) -C diffutils-build --strip-components=1
+        tar xf $(location @diffutils_src.tar//file) -C diffutils-build --strip-components=1
         cd diffutils-build
 
         ./configure --prefix=/usr --host=$$LFS_TGT --build=$$(build-aux/config.guess)
@@ -561,7 +561,7 @@ genrule(
 genrule(
     name = "build_file",
     srcs = [
-        "@file_tarball//file",
+        "@file_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -578,7 +578,7 @@ genrule(
 
         # Extract File source
         mkdir -p file-build
-        tar xf $(location @file_tarball//file) -C file-build --strip-components=1
+        tar xf $(location @file_src.tar//file) -C file-build --strip-components=1
         cd file-build
 
         mkdir build
@@ -610,7 +610,7 @@ genrule(
 genrule(
     name = "build_findutils",
     srcs = [
-        "@findutils_tarball//file",
+        "@findutils_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -627,7 +627,7 @@ genrule(
 
         # Extract Findutils source
         mkdir -p findutils-build
-        tar xf $(location @findutils_tarball//file) -C findutils-build --strip-components=1
+        tar xf $(location @findutils_src.tar//file) -C findutils-build --strip-components=1
         cd findutils-build
 
         ./configure --prefix=/usr --host=$$LFS_TGT --build=$$(build-aux/config.guess) --localstatedir=/var/lib/locate
@@ -646,7 +646,7 @@ genrule(
 genrule(
     name = "build_gawk",
     srcs = [
-        "@gawk_tarball//file",
+        "@gawk_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -663,7 +663,7 @@ genrule(
 
         # Extract Gawk source
         mkdir -p gawk-build
-        tar xf $(location @gawk_tarball//file) -C gawk-build --strip-components=1
+        tar xf $(location @gawk_src.tar//file) -C gawk-build --strip-components=1
         cd gawk-build
 
         # Make sure unneeded files are not installed
@@ -685,7 +685,7 @@ genrule(
 genrule(
     name = "build_grep",
     srcs = [
-        "@grep_tarball//file",
+        "@grep_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -702,7 +702,7 @@ genrule(
 
         # Extract Grep source
         mkdir -p grep-build
-        tar xf $(location @grep_tarball//file) -C grep-build --strip-components=1
+        tar xf $(location @grep_src.tar//file) -C grep-build --strip-components=1
         cd grep-build
 
         ./configure --prefix=/usr --host=$$LFS_TGT --build=$$(build-aux/config.guess)
@@ -721,7 +721,7 @@ genrule(
 genrule(
     name = "build_gzip",
     srcs = [
-        "@gzip_tarball//file",
+        "@gzip_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -738,7 +738,7 @@ genrule(
 
         # Extract Gzip source
         mkdir -p gzip-build
-        tar xf $(location @gzip_tarball//file) -C gzip-build --strip-components=1
+        tar xf $(location @gzip_src.tar//file) -C gzip-build --strip-components=1
         cd gzip-build
 
         ./configure --prefix=/usr --host=$$LFS_TGT
@@ -757,7 +757,7 @@ genrule(
 genrule(
     name = "build_make",
     srcs = [
-        "@make_tarball//file",
+        "@make_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -774,7 +774,7 @@ genrule(
 
         # Extract Make source
         mkdir -p make-build
-        tar xf $(location @make_tarball//file) -C make-build --strip-components=1
+        tar xf $(location @make_src.tar//file) -C make-build --strip-components=1
         cd make-build
 
         ./configure --prefix=/usr --host=$$LFS_TGT --build=$$(build-aux/config.guess) \
@@ -794,7 +794,7 @@ genrule(
 genrule(
     name = "build_patch",
     srcs = [
-        "@patch_tarball//file",
+        "@patch_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -811,7 +811,7 @@ genrule(
 
         # Extract Patch source
         mkdir -p patch-build
-        tar xf $(location @patch_tarball//file) -C patch-build --strip-components=1
+        tar xf $(location @patch_src.tar//file) -C patch-build --strip-components=1
         cd patch-build
 
         ./configure --prefix=/usr --host=$$LFS_TGT --build=$$(build-aux/config.guess)
@@ -830,7 +830,7 @@ genrule(
 genrule(
     name = "build_sed",
     srcs = [
-        "@sed_tarball//file",
+        "@sed_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -847,7 +847,7 @@ genrule(
 
         # Extract Sed source
         mkdir -p sed-build
-        tar xf $(location @sed_tarball//file) -C sed-build --strip-components=1
+        tar xf $(location @sed_src.tar//file) -C sed-build --strip-components=1
         cd sed-build
 
         ./configure --prefix=/usr --host=$$LFS_TGT --build=$$(build-aux/config.guess)
@@ -866,7 +866,7 @@ genrule(
 genrule(
     name = "build_tar",
     srcs = [
-        "@tar_tarball//file",
+        "@tar_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -883,7 +883,7 @@ genrule(
 
         # Extract Tar source
         mkdir -p tar-build
-        tar xf $(location @tar_tarball//file) -C tar-build --strip-components=1
+        tar xf $(location @tar_src.tar//file) -C tar-build --strip-components=1
         cd tar-build
 
         ./configure --prefix=/usr \
@@ -904,7 +904,7 @@ genrule(
 genrule(
     name = "build_xz",
     srcs = [
-        "@xz_tarball//file",
+        "@xz_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -921,7 +921,7 @@ genrule(
 
         # Extract Xz source
         mkdir -p xz-build
-        tar xf $(location @xz_tarball//file) -C xz-build --strip-components=1
+        tar xf $(location @xz_src.tar//file) -C xz-build --strip-components=1
         cd xz-build
 
         ./configure --prefix=/usr --host=$$LFS_TGT --build=$$(build-aux/config.guess) --disable-static --docdir=/usr/share/doc/xz-5.6.2
@@ -943,7 +943,7 @@ genrule(
 genrule(
     name = "build_binutils_pass2",
     srcs = [
-        "@binutils_tarball//file",
+        "@binutils_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -960,7 +960,7 @@ genrule(
 
         # Extract Binutils source
         mkdir -p binutils-build
-        tar xf $(location @binutils_tarball//file) -C binutils-build --strip-components=1
+        tar xf $(location @binutils_src.tar//file) -C binutils-build --strip-components=1
         cd binutils-build
 
         mkdir -v build
@@ -995,7 +995,7 @@ genrule(
 genrule(
     name = "build_gcc_pass2",
     srcs = [
-        "@gcc_tarball//file",
+        "@gcc_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
@@ -1012,7 +1012,7 @@ genrule(
 
         # Extract GCC source
         mkdir -p gcc-build
-        tar xf $(location @gcc_tarball//file) -C gcc-build --strip-components=1
+        tar xf $(location @gcc_src.tar//file) -C gcc-build --strip-components=1
         cd gcc-build
 
         case $$(uname -m) in
@@ -1163,14 +1163,14 @@ sh_binary(
 genrule(
     name = "build_gettext",
     srcs = [
-        "@gettext_tarball//file",
+        "@gettext_src.tar//file",
         "image_temporary_rootfs.tar",
     ],
     outs = ["gettext_installed.tar"],
     cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
         extract_dependency $(location image_temporary_rootfs.tar)
 
-        extract_source $(location @gettext_tarball//file)
+        extract_source $(location @gettext_src.tar//file)
 
         run_bash_script_in_lfs "
             cd /src
@@ -1219,14 +1219,14 @@ genrule(
 genrule(
     name = "build_perl",
     srcs = [
-        "@perl_tarball//file",
+        "@perl_src.tar//file",
         "image_temporary_rootfs.tar",
     ],
     outs = ["perl_installed.tar"],
     cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
         extract_dependency $(location image_temporary_rootfs.tar)
 
-        extract_source $(location @perl_tarball//file)
+        extract_source $(location @perl_src.tar//file)
 
         run_bash_script_in_lfs "
             cd /src

@@ -56,25 +56,25 @@ load(
 )
 
 http_file(
-    name = "binutils_tarball",
+    name = "binutils_src.tar",
     sha256 = BINUTILS_SHA256,
     urls = ["https://sourceware.org/pub/binutils/releases/binutils-{}.tar.xz".format(BINUTILS_VERSION)],
 )
 
 http_file(
-    name = "gcc_tarball",
+    name = "gcc_src.tar",
     sha256 = GCC_SHA256,
     urls = ["https://ftp.gnu.org/gnu/gcc/gcc-{0}/gcc-{0}.tar.xz".format(GCC_VERSION)],
 )
 
 http_file(
-    name = "linux_kernel_tarball",
+    name = "linux_kernel_src.tar",
     sha256 = LINUX_KERNEL_SHA256,
     urls = ["https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-{0}.tar.xz".format(LINUX_KERNEL_VERSION)],
 )
 
 http_file(
-    name = "glibc_tarball",
+    name = "glibc_src.tar",
     sha256 = GLIBC_SHA256,
     urls = ["https://ftp.gnu.org/gnu/glibc/glibc-{}.tar.xz".format(GLIBC_VERSION)],
 )
@@ -86,97 +86,97 @@ http_file(
 )
 
 http_file(
-    name = "m4_tarball",
+    name = "m4_src.tar",
     sha256 = M4_SHA256,
     urls = ["https://ftp.gnu.org/gnu/m4/m4-{}.tar.xz".format(M4_VERSION)],
 )
 
 http_file(
-    name = "ncurses_tarball",
+    name = "ncurses_src.tar",
     sha256 = NCURSES_SHA256,
     urls = ["https://ftp.gnu.org/gnu/ncurses/ncurses-{}.tar.gz".format(NCURSES_VERSION)],
 )
 
 http_file(
-    name = "bash_tarball",
+    name = "bash_src.tar",
     sha256 = BASH_SHA256,
     urls = ["https://ftp.gnu.org/gnu/bash/bash-{}.tar.gz".format(BASH_VERSION)],
 )
 
 http_file(
-    name = "coreutils_tarball",
+    name = "coreutils_src.tar",
     sha256 = COREUTILS_SHA256,
     urls = ["https://ftp.gnu.org/gnu/coreutils/coreutils-{}.tar.xz".format(COREUTILS_VERSION)],
 )
 
 http_file(
-    name = "diffutils_tarball",
+    name = "diffutils_src.tar",
     sha256 = DIFFUTILS_SHA256,
     urls = ["https://ftp.gnu.org/gnu/diffutils/diffutils-{}.tar.xz".format(DIFFUTILS_VERSION)],
 )
 
 http_file(
-    name = "file_tarball",
+    name = "file_src.tar",
     sha256 = FILE_SHA256,
     urls = ["https://astron.com/pub/file/file-{}.tar.gz".format(FILE_VERSION)],
 )
 
 http_file(
-    name = "findutils_tarball",
+    name = "findutils_src.tar",
     sha256 = FINDUTILS_SHA256,
     urls = ["https://ftp.gnu.org/gnu/findutils/findutils-{}.tar.xz".format(FINDUTILS_VERSION)],
 )
 
 http_file(
-    name = "gawk_tarball",
+    name = "gawk_src.tar",
     sha256 = GAWK_SHA256,
     urls = ["https://ftp.gnu.org/gnu/gawk/gawk-{}.tar.xz".format(GAWK_VERSION)],
 )
 
 http_file(
-    name = "grep_tarball",
+    name = "grep_src.tar",
     sha256 = GREP_SHA256,
     urls = ["https://ftp.gnu.org/gnu/grep/grep-{}.tar.xz".format(GREP_VERSION)],
 )
 
 http_file(
-    name = "gzip_tarball",
+    name = "gzip_src.tar",
     sha256 = GZIP_SHA256,
     urls = ["https://ftp.gnu.org/gnu/gzip/gzip-{}.tar.xz".format(GZIP_VERSION)],
 )
 
 http_file(
-    name = "make_tarball",
+    name = "make_src.tar",
     sha256 = MAKE_SHA256,
     urls = ["https://ftp.gnu.org/gnu/make/make-{}.tar.gz".format(MAKE_VERSION)],
 )
 
 http_file(
-    name = "patch_tarball",
+    name = "patch_src.tar",
     sha256 = PATCH_SHA256,
     urls = ["https://ftp.gnu.org/gnu/patch/patch-{}.tar.xz".format(PATCH_VERSION)],
 )
 
 http_file(
-    name = "sed_tarball",
+    name = "sed_src.tar",
     sha256 = SED_SHA256,
     urls = ["https://ftp.gnu.org/gnu/sed/sed-{}.tar.xz".format(SED_VERSION)],
 )
 
 http_file(
-    name = "tar_tarball",
+    name = "tar_src.tar",
     sha256 = TAR_SHA256,
     urls = ["https://ftp.gnu.org/gnu/tar/tar-{}.tar.xz".format(TAR_VERSION)],
 )
 
 http_file(
-    name = "xz_tarball",
+    name = "xz_src.tar",
     sha256 = XZ_SHA256,
     urls = ["https://github.com//tukaani-project/xz/releases/download/v{0}/xz-{0}.tar.xz".format(XZ_VERSION)],
 )
 
 http_file(
-    name = "gettext_tarball",
+    name = "gettext_src.tar",
     sha256 = GETTEXT_SHA256,
     urls = ["https://ftp.gnu.org/gnu/gettext/gettext-{}.tar.xz".format(GETTEXT_VERSION)],
 )
@@ -188,7 +188,7 @@ http_file(
 )
 
 http_file(
-    name = "perl_tarball",
+    name = "perl_src.tar",
     sha256 = PERL_SHA256,
     urls = ["https://www.cpan.org/src/5.0/perl-{}.tar.xz".format(PERL_VERSION)],
 )
