@@ -138,7 +138,7 @@ genrule(
 )
 
 genrule(
-    name = "install_linux_headers",
+    name = "build_linux_headers",
     srcs = [
         "@linux_kernel_tarball//file",
     ],
@@ -232,14 +232,14 @@ genrule(
 )
 
 genrule(
-    name = "sanity_check_gcc",
+    name = "build_sanity_check_gcc_pass1",
     srcs = [
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
         "glibc_installed.tar",
         "linux_headers_installed.tar",
     ],
-    outs = ["sanity_check_gcc.txt"],
+    outs = ["sanity_check_gcc_pass1.txt"],
     cmd = COMMON_SCRIPT + """
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
@@ -401,7 +401,7 @@ genrule(
 )
 
 genrule(
-    name = "sanity_check_gxx",
+    name = "build_sanity_check_gxx_pass1",
     srcs = [
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
@@ -409,7 +409,7 @@ genrule(
         "linux_headers_installed.tar",
         "libstdcxx_installed.tar",
     ],
-    outs = ["sanity_check_gxx.txt"],
+    outs = ["sanity_check_gxx_pass1.txt"],
     cmd = """
         {common_script}
 
@@ -1083,7 +1083,7 @@ cleanup_source() {
 """
 
 genrule(
-    name = "image_initial_rootfs",
+    name = "image_temporary_rootfs",
     srcs = [
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
@@ -1108,7 +1108,7 @@ genrule(
         "binutils_pass2_installed.tar",
         "gcc_pass2_installed.tar",
     ],
-    outs = ["initial_rootfs_image.tar"],
+    outs = ["image_temporary_rootfs.tar"],
     cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
         for dep in $(SRCS); do
             extract_dependency $$dep
@@ -1150,13 +1150,13 @@ genrule(
 )
 
 sh_binary(
-    name = "run_initial_rootfs",
+    name = "run_temporary_rootfs",
     srcs = ["scripts/run_bwrap.sh"],
     args = [
-        "$(location initial_rootfs_image.tar)",
+        "$(location image_temporary_rootfs.tar)",
     ],
     data = [
-        "initial_rootfs_image.tar",
+        "image_temporary_rootfs.tar",
     ],
 )
 
@@ -1164,11 +1164,11 @@ genrule(
     name = "build_gettext",
     srcs = [
         "@gettext_tarball//file",
-        "initial_rootfs_image.tar",
+        "image_temporary_rootfs.tar",
     ],
     outs = ["gettext_installed.tar"],
     cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
-        extract_dependency $(location initial_rootfs_image.tar)
+        extract_dependency $(location image_temporary_rootfs.tar)
 
         extract_source $(location @gettext_tarball//file)
 
@@ -1191,11 +1191,11 @@ genrule(
     name = "build_bison",
     srcs = [
         "@bison_src.tar//file",
-        "initial_rootfs_image.tar",
+        "image_temporary_rootfs.tar",
     ],
     outs = ["bison_installed.tar"],
     cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
-        extract_dependency $(location initial_rootfs_image.tar)
+        extract_dependency $(location image_temporary_rootfs.tar)
 
         extract_source $(location @bison_src.tar//file)
 
@@ -1220,11 +1220,11 @@ genrule(
     name = "build_perl",
     srcs = [
         "@perl_tarball//file",
-        "initial_rootfs_image.tar",
+        "image_temporary_rootfs.tar",
     ],
     outs = ["perl_installed.tar"],
     cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
-        extract_dependency $(location initial_rootfs_image.tar)
+        extract_dependency $(location image_temporary_rootfs.tar)
 
         extract_source $(location @perl_tarball//file)
 
@@ -1258,11 +1258,11 @@ genrule(
     name = "build_python",
     srcs = [
         "@python_src.tar//file",
-        "initial_rootfs_image.tar",
+        "image_temporary_rootfs.tar",
     ],
     outs = ["python_installed.tar"],
     cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
-        extract_dependency $(location initial_rootfs_image.tar)
+        extract_dependency $(location image_temporary_rootfs.tar)
 
         extract_source $(location @python_src.tar//file)
 
@@ -1285,12 +1285,12 @@ genrule(
     name = "build_texinfo",
     srcs = [
         "@texinfo_src.tar//file",
-        "initial_rootfs_image.tar",
+        "image_temporary_rootfs.tar",
         "perl_installed.tar",
     ],
     outs = ["texinfo_installed.tar"],
     cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
-        extract_dependency $(location initial_rootfs_image.tar)
+        extract_dependency $(location image_temporary_rootfs.tar)
         extract_dependency $(location perl_installed.tar)
 
         extract_source $(location @texinfo_src.tar//file)
@@ -1315,11 +1315,11 @@ genrule(
     name = "build_util_linux",
     srcs = [
         "@util_linux_src.tar//file",
-        "initial_rootfs_image.tar",
+        "image_temporary_rootfs.tar",
     ],
     outs = ["util_linux_installed.tar"],
     cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
-        extract_dependency $(location initial_rootfs_image.tar)
+        extract_dependency $(location image_temporary_rootfs.tar)
 
         extract_source $(location @util_linux_src.tar//file)
 
