@@ -49,6 +49,8 @@ load(
     "TAR_VERSION",
     "TEXINFO_SHA256",
     "TEXINFO_VERSION",
+    "UTIL_LINUX_SHA256",
+    "UTIL_LINUX_VERSION",
     "XZ_SHA256",
     "XZ_VERSION",
 )
@@ -201,4 +203,16 @@ http_file(
     name = "texinfo_src.tar",
     sha256 = TEXINFO_SHA256,
     urls = ["https://ftp.gnu.org/gnu/texinfo/texinfo-{}.tar.xz".format(TEXINFO_VERSION)],
+)
+
+http_file(
+    name = "util_linux_src.tar",
+    sha256 = UTIL_LINUX_SHA256,
+    # Example url: https://www.kernel.org/pub/linux/utils/util-linux/v2.40/util-linux-2.40.2.tar.xz
+    urls = [
+        "https://www.kernel.org/pub/linux/utils/util-linux/v{0}/util-linux-{1}.tar.xz".format(
+            UTIL_LINUX_VERSION.rsplit(".", 1)[0],
+            UTIL_LINUX_VERSION,
+        ),
+    ],
 )

@@ -1,4 +1,4 @@
-load("//:versions.bzl", "BISON_VERSION", "GLIBC_VERSION", "PERL_VERSION")
+load("//:versions.bzl", "BISON_VERSION", "GLIBC_VERSION", "PERL_VERSION", "UTIL_LINUX_VERSION")
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -463,6 +463,7 @@ genrule(
         make DESTDIR=$$LFS install
         mkdir -pv $$LFS/bin
         ln -sv /usr/bin/bash $$LFS/bin/sh
+        ln -sv /usr/bin/bash $$LFS/bin/bash
 
         cleanup_extracted_dependencies
 
@@ -1307,4 +1308,52 @@ genrule(
         cd "$$START_DIR"
         tar cf "$@" -C "$$LFS" .
     """,
+)
+
+# Deviation: we disable the chgrp/chown steps, due to the limitations of the sandboxing approach
+genrule(
+    name = "build_util_linux",
+    srcs = [
+        "@util_linux_src.tar//file",
+        "initial_rootfs_image.tar",
+    ],
+    outs = ["util_linux_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location initial_rootfs_image.tar)
+
+        extract_source $(location @util_linux_src.tar//file)
+
+        run_bash_script_in_lfs "
+            mkdir -pv /var/lib/hwclock
+            cd /src
+            ./configure --libdir=/usr/lib     \
+                --runstatedir=/run    \
+                --disable-chfn-chsh   \
+                --disable-login       \
+                --disable-nologin     \
+                --disable-su          \
+                --disable-setpriv     \
+                --disable-runuser     \
+                --disable-pylibmount  \
+                --disable-static      \
+                --disable-liblastlog2 \
+                --without-python      \
+                ADJTIME_PATH=/var/lib/hwclock/adjtime \
+                --docdir=/usr/share/doc/util-linux-{util_linux_version}
+            make -j$$(nproc)
+            # Disable the ownership changes
+            rm /usr/bin/chgrp /usr/bin/chown
+            ln -svf /usr/bin/true /usr/bin/chgrp
+            ln -svf /usr/bin/true /usr/bin/chown
+            make install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        util_linux_version = UTIL_LINUX_VERSION,
+    ),
 )
