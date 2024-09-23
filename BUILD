@@ -1,4 +1,4 @@
-load("//:versions.bzl", "BISON_VERSION", "GLIBC_VERSION", "PERL_VERSION", "READLINE_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
+load("//:versions.bzl", "BISON_VERSION", "FLEX_VERSION", "GLIBC_VERSION", "PERL_VERSION", "READLINE_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -1829,4 +1829,37 @@ genrule(
         cd "$$START_DIR"
         tar cf "$@" -C "$$LFS" .
     """,
+)
+
+genrule(
+    name = "build_flex",
+    srcs = [
+        "@flex_src.tar//file",
+        "image_initial_rootfs.tar",
+    ],
+    outs = ["flex_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        extract_source $(location @flex_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr --docdir=/usr/share/doc/flex-{flex_version} --disable-static
+            make
+            make check
+            make install
+
+            ln -sv flex   /usr/bin/lex
+            ln -sv flex.1 /usr/share/man/man1/lex.1
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        flex_version = FLEX_VERSION,
+    ),
 )

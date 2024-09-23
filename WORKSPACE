@@ -21,6 +21,8 @@ load(
     "FILE_VERSION",
     "FINDUTILS_SHA256",
     "FINDUTILS_VERSION",
+    "FLEX_SHA256",
+    "FLEX_VERSION",
     "GAWK_SHA256",
     "GAWK_VERSION",
     "GCC_SHA256",
@@ -279,4 +281,10 @@ http_file(
     name = "bc_src.tar",
     sha256 = BC_SHA256,
     urls = ["https://github.com/gavinhoward/bc/releases/download/{0}/bc-{0}.tar.xz".format(BC_VERSION)],
+)
+
+http_file(
+    name = "flex_src.tar",
+    sha256 = FLEX_SHA256,
+    urls = ["https://github.com/westes/flex/releases/download/v{0}/flex-{0}.tar.gz".format(FLEX_VERSION)],
 )
