@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Find the package that contains a file in the bazel-bin directory
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+cd $SCRIPT_DIR/..
+
+for pkg in bazel-bin/*_installed.tar; do
+    tar -tf $pkg | grep -q $1 && echo $pkg
+done
