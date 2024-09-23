@@ -61,6 +61,8 @@ load(
     "SED_VERSION",
     "TAR_SHA256",
     "TAR_VERSION",
+    "TCL_SHA256",
+    "TCL_VERSION",
     "TEXINFO_SHA256",
     "TEXINFO_VERSION",
     "UTIL_LINUX_SHA256",
@@ -287,4 +289,10 @@ http_file(
     name = "flex_src.tar",
     sha256 = FLEX_SHA256,
     urls = ["https://github.com/westes/flex/releases/download/v{0}/flex-{0}.tar.gz".format(FLEX_VERSION)],
+)
+
+http_file(
+    name = "tcl_src.tar",
+    sha256 = TCL_SHA256,
+    urls = ["https://prdownloads.sourceforge.net/tcl/tcl{0}-src.tar.gz".format(TCL_VERSION)],
 )

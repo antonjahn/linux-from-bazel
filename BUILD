@@ -1631,7 +1631,7 @@ genrule(
         grep -v -f files_to_keep.txt extracted_files.txt > extracted_files.txt.tmp
         mv extracted_files.txt.tmp extracted_files.txt
         cleanup_extracted_dependencies
-        
+
         cleanup_source
 
         cd "$$START_DIR"
@@ -1795,7 +1795,7 @@ genrule(
         grep -v -f files_to_keep.txt extracted_files.txt > extracted_files.txt.tmp
         mv extracted_files.txt.tmp extracted_files.txt
         cleanup_extracted_dependencies
-        
+
         cleanup_source
 
         cd "$$START_DIR"
@@ -1862,4 +1862,62 @@ genrule(
     """.format(
         flex_version = FLEX_VERSION,
     ),
+)
+
+genrule(
+    name = "build_tcl",
+    srcs = [
+        "@tcl_src.tar//file",
+        "image_initial_rootfs.tar",
+    ],
+    outs = ["tcl_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        extract_source $(location @tcl_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src/unix
+            ./configure --prefix=/usr   \
+                --mandir=/usr/share/man \
+                --disable-rpath
+
+            make
+
+            sed -e 's|/src/unix|/usr/lib|' \
+                -e 's|/src|/usr/include|'  \
+                -i tclConfig.sh
+
+            sed -e 's|/src/unix/pkgs/tdbc1.1.7|/usr/lib/tdbc1.1.7|' \
+                -e 's|/src/pkgs/tdbc1.1.7/generic|/usr/include|'    \
+                -e 's|/src/pkgs/tdbc1.1.7/library|/usr/lib/tcl8.6|' \
+                -e 's|/src/pkgs/tdbc1.1.7|/usr/include|'            \
+                -i pkgs/tdbc1.1.7/tdbcConfig.sh
+
+            sed -e 's|/src/unix/pkgs/itcl4.2.4|/usr/lib/itcl4.2.4|' \
+                -e 's|/src/pkgs/itcl4.2.4/generic|/usr/include|'    \
+                -e 's|/src/pkgs/itcl4.2.4|/usr/include|'            \
+                -i pkgs/itcl4.2.4/itclConfig.sh
+
+            # Opt out on running: make test
+            make install
+
+            chmod -v u+w /usr/lib/libtcl8.6.so
+            make install-private-headers
+
+            ln -sfv tclsh8.6 /usr/bin/tclsh
+            mv /usr/share/man/man3/{Thread,Tcl_Thread}.3
+
+            # Opt out installing the documentation
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
 )
