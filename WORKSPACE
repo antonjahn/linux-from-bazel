@@ -57,6 +57,8 @@ load(
     "UTIL_LINUX_VERSION",
     "XZ_SHA256",
     "XZ_VERSION",
+    "ZLIB_SHA256",
+    "ZLIB_VERSION",
 )
 
 http_file(
@@ -231,4 +233,10 @@ http_file(
     name = "iana_etc_src.tar",
     sha256 = IANA_ETC_SHA256,
     urls = ["https://github.com/Mic92/iana-etc/releases/download/{0}/iana-etc-{0}.tar.gz".format(IANA_ETC_VERSION)],
+)
+
+http_file(
+    name = "zlib_src.tar",
+    sha256 = ZLIB_SHA256,
+    urls = ["https://zlib.net/fossils/zlib-{}.tar.gz".format(ZLIB_VERSION)],
 )

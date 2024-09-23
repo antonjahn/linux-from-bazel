@@ -1532,3 +1532,32 @@ sh_binary(
         "image_initial_rootfs.tar",
     ],
 )
+
+genrule(
+    name = "build_zlib",
+    srcs = [
+        "@zlib_src.tar//file",
+        "image_initial_rootfs.tar",
+    ],
+    outs = ["zlib_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        extract_source $(location @zlib_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr
+            make
+            make check
+            make install
+            rm -fv /usr/lib/libz.a
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
