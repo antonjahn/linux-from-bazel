@@ -1357,3 +1357,29 @@ genrule(
         util_linux_version = UTIL_LINUX_VERSION,
     ),
 )
+
+genrule(
+    name = "build_man_pages",
+    srcs = [
+        "@man_pages_src.tar//file",
+        "image_temporary_rootfs.tar",
+    ],
+    outs = ["man_pages_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_temporary_rootfs.tar)
+
+        extract_source $(location @man_pages_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            rm -v man3/crypt*
+            make prefix=/usr install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)

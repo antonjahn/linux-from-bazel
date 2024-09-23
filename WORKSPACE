@@ -35,6 +35,8 @@ load(
     "M4_VERSION",
     "MAKE_SHA256",
     "MAKE_VERSION",
+    "MAN_PAGES_SHA256",
+    "MAN_PAGES_VERSION",
     "NCURSES_SHA256",
     "NCURSES_VERSION",
     "PATCH_SHA256",
@@ -215,4 +217,10 @@ http_file(
             UTIL_LINUX_VERSION,
         ),
     ],
+)
+
+http_file(
+    name = "man_pages_src.tar",
+    sha256 = MAN_PAGES_SHA256,
+    urls = ["https://www.kernel.org/pub/linux/docs/man-pages/man-pages-{}.tar.xz".format(MAN_PAGES_VERSION)],
 )
