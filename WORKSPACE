@@ -35,6 +35,8 @@ load(
     "IANA_ETC_VERSION",
     "LINUX_KERNEL_SHA256",
     "LINUX_KERNEL_VERSION",
+    "LZ4_SHA256",
+    "LZ4_VERSION",
     "M4_SHA256",
     "M4_VERSION",
     "MAKE_SHA256",
@@ -247,4 +249,10 @@ http_file(
     name = "bzip2_src.tar",
     sha256 = BZIP2_SHA256,
     urls = ["https://sourceware.org/pub/bzip2/bzip2-{}.tar.gz".format(BZIP2_VERSION)],
+)
+
+http_file(
+    name = "lz4_src.tar",
+    sha256 = LZ4_SHA256,
+    urls = ["https://github.com/lz4/lz4/releases/download/v{0}/lz4-{0}.tar.gz".format(LZ4_VERSION)],
 )

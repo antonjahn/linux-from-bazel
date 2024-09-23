@@ -1640,3 +1640,30 @@ genrule(
         xz_version = XZ_VERSION,
     ),
 )
+
+genrule(
+    name = "build_lz4",
+    srcs = [
+        "@lz4_src.tar//file",
+        "image_initial_rootfs.tar",
+    ],
+    outs = ["lz4_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        extract_source $(location @lz4_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            make BUILD_STATIC=no PREFIX=/usr
+            make -j1 check
+            make BUILD_STATIC=no PREFIX=/usr install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
