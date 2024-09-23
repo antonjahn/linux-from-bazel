@@ -1067,6 +1067,8 @@ ENTER_LFS_SCRIPT = """
 run_bash_script_in_lfs() {
     bwrap --bind $$LFS / --dev /dev --proc /proc --tmpfs /run --unshare-all /usr/bin/env -i \
             HOME=/root \
+            MAKEFLAGS="-j$$(nproc)" \
+            TESTSUITEFLAGS="-j$$(nproc)" \
             PATH=/bin:/usr/bin:/usr/sbin \
             bash -c "$$1"
 }
@@ -1175,7 +1177,7 @@ genrule(
         run_bash_script_in_lfs "
             cd /src
             ./configure --disable-shared
-            make -j$$(nproc)
+            make
             cp -v gettext-tools/src/{msgfmt,msgmerge,xgettext} /usr/bin
         "
 
@@ -1202,7 +1204,7 @@ genrule(
         run_bash_script_in_lfs "
             cd /src
             ./configure --prefix=/usr --docdir=/usr/share/doc/bison-{bison_version}
-            make -j$$(nproc)
+            make
             make install
         "
 
@@ -1240,7 +1242,7 @@ genrule(
                 -D sitearch=/usr/lib/perl5/{perl_version}/site_perl    \
                 -D vendorlib=/usr/lib/perl5/{perl_version}/vendor_perl \
                 -D vendorarch=/usr/lib/perl5/{perl_version}/vendor_perl
-            make -j$$(nproc)
+            make
             make install
         "
 
@@ -1269,7 +1271,7 @@ genrule(
         run_bash_script_in_lfs "
             cd /src
             ./configure --prefix=/usr --enable-shared --without-ensurepip
-            make -j$$(nproc)
+            make
             make install
         "
 
@@ -1298,7 +1300,7 @@ genrule(
         run_bash_script_in_lfs "
             cd /src
             ./configure --prefix=/usr
-            make -j$$(nproc)
+            make
             make install
         "
 
@@ -1340,7 +1342,7 @@ genrule(
                 --without-python      \
                 ADJTIME_PATH=/var/lib/hwclock/adjtime \
                 --docdir=/usr/share/doc/util-linux-{util_linux_version}
-            make -j$$(nproc)
+            make
             # Disable the ownership changes
             rm /usr/bin/chgrp /usr/bin/chown
             ln -svf /usr/bin/true /usr/bin/chgrp
@@ -1447,8 +1449,6 @@ genrule(
                 --enable-stack-protector=strong          \
                 --disable-nscd                           \
                 libc_cv_slibdir=/usr/lib
-            export MAKEFLAGS=-j$$(nproc)
-            export TESTSUITEFLAGS=-j$$(nproc)
             make
             # make check
 
