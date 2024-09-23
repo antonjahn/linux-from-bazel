@@ -1561,3 +1561,44 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """,
 )
+
+# Deviation: Do not install documentation
+genrule(
+    name = "build_bzip2",
+    srcs = [
+        "@bzip2_src.tar//file",
+        "image_initial_rootfs.tar",
+    ],
+    outs = ["bzip2_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        extract_source $(location @bzip2_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            sed -i 's@(ln -s -f )\\$$(PREFIX)/bin/@\001@' Makefile
+            sed -i 's@(PREFIX)/man@(PREFIX)/share/man@g' Makefile
+            make -f Makefile-libbz2_so
+            make clean
+
+            make
+            make PREFIX=/usr install
+
+            cp -av libbz2.so.* /usr/lib
+            ln -sv libbz2.so.1.0.8 /usr/lib/libbz2.so
+
+            cp -v bzip2-shared /usr/bin/bzip2
+            ln -sfv bzip2 /usr/bin/bzcat
+            ln -sfv bzip2 /usr/bin/bunzip2
+
+            rm -fv /usr/lib/libbz2.a
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)

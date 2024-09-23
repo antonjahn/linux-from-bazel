@@ -9,6 +9,8 @@ load(
     "BINUTILS_VERSION",
     "BISON_SHA256",
     "BISON_VERSION",
+    "BZIP2_SHA256",
+    "BZIP2_VERSION",
     "COREUTILS_SHA256",
     "COREUTILS_VERSION",
     "DIFFUTILS_SHA256",
@@ -239,4 +241,10 @@ http_file(
     name = "zlib_src.tar",
     sha256 = ZLIB_SHA256,
     urls = ["https://zlib.net/fossils/zlib-{}.tar.gz".format(ZLIB_VERSION)],
+)
+
+http_file(
+    name = "bzip2_src.tar",
+    sha256 = BZIP2_SHA256,
+    urls = ["https://sourceware.org/pub/bzip2/bzip2-{}.tar.gz".format(BZIP2_VERSION)],
 )
