@@ -63,6 +63,8 @@ load(
     "XZ_VERSION",
     "ZLIB_SHA256",
     "ZLIB_VERSION",
+    "ZSTD_SHA256",
+    "ZSTD_VERSION",
 )
 
 http_file(
@@ -255,4 +257,10 @@ http_file(
     name = "lz4_src.tar",
     sha256 = LZ4_SHA256,
     urls = ["https://github.com/lz4/lz4/releases/download/v{0}/lz4-{0}.tar.gz".format(LZ4_VERSION)],
+)
+
+http_file(
+    name = "zstd_src.tar",
+    sha256 = ZSTD_SHA256,
+    urls = ["https://github.com/facebook/zstd/releases/download/v{0}/zstd-{0}.tar.gz".format(ZSTD_VERSION)],
 )

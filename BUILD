@@ -1667,3 +1667,31 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """,
 )
+
+genrule(
+    name = "build_zstd",
+    srcs = [
+        "@zstd_src.tar//file",
+        "image_initial_rootfs.tar",
+    ],
+    outs = ["zstd_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        extract_source $(location @zstd_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            make prefix=/usr
+            make check
+            make prefix=/usr install
+            rm -fv /usr/lib/libzstd.a
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
