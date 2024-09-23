@@ -1767,3 +1767,38 @@ genrule(
         readline_version = READLINE_VERSION,
     ),
 )
+
+genrule(
+    name = "build_m4_final",
+    srcs = [
+        "@m4_src.tar//file",
+        "image_initial_rootfs.tar",
+        "m4_installed.tar",
+    ],
+    outs = ["m4_final_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        extract_source $(location @m4_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr
+            make
+            make check
+            make install
+        "
+
+        # Remove files other than the ones installed by m4
+        cd $$START_DIR
+        tar tf $(location m4_installed.tar) | grep -v '/$$' > files_to_keep.txt
+        grep -v -f files_to_keep.txt extracted_files.txt > extracted_files.txt.tmp
+        mv extracted_files.txt.tmp extracted_files.txt
+        cleanup_extracted_dependencies
+        
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
