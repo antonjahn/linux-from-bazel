@@ -29,6 +29,8 @@ load(
     "GREP_VERSION",
     "GZIP_SHA256",
     "GZIP_VERSION",
+    "IANA_ETC_SHA256",
+    "IANA_ETC_VERSION",
     "LINUX_KERNEL_SHA256",
     "LINUX_KERNEL_VERSION",
     "M4_SHA256",
@@ -223,4 +225,10 @@ http_file(
     name = "man_pages_src.tar",
     sha256 = MAN_PAGES_SHA256,
     urls = ["https://www.kernel.org/pub/linux/docs/man-pages/man-pages-{}.tar.xz".format(MAN_PAGES_VERSION)],
+)
+
+http_file(
+    name = "iana_etc_src.tar",
+    sha256 = IANA_ETC_SHA256,
+    urls = ["https://github.com/Mic92/iana-etc/releases/download/{0}/iana-etc-{0}.tar.gz".format(IANA_ETC_VERSION)],
 )

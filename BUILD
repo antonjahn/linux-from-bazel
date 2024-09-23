@@ -1383,3 +1383,28 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """,
 )
+
+genrule(
+    name = "build_iana_etc",
+    srcs = [
+        "@iana_etc_src.tar//file",
+        "image_temporary_rootfs.tar",
+    ],
+    outs = ["iana_etc_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_temporary_rootfs.tar)
+
+        extract_source $(location @iana_etc_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            cp services protocols /etc
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
