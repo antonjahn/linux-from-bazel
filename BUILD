@@ -1463,3 +1463,72 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """,
 )
+
+genrule(
+    name = "image_initial_rootfs",
+    srcs = [
+        "glibc_pass2_installed.tar",
+        "man_pages_installed.tar",
+        "iana_etc_installed.tar",
+        "util_linux_installed.tar",
+    ],
+    outs = ["image_initial_rootfs.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location glibc_pass2_installed.tar)
+
+        # Cleanup initial documentation
+        rm -rf $$LFS/usr/share/{info,man,doc}/*
+
+        extract_dependency $(location man_pages_installed.tar)
+        extract_dependency $(location iana_etc_installed.tar)
+        extract_dependency $(location util_linux_installed.tar)
+
+        # Remove libtool archive files
+        find $$LFS/usr/{lib,libexec} -name '*.la' -delete
+
+        # Remove the tools directory
+        rm -rf $$LFS/tools
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
+
+genrule(
+    name = "build_sanity_check_gcc_pass2",
+    srcs = [
+        "image_initial_rootfs.tar",
+    ],
+    outs = ["sanity_check_gcc_pass2.txt"],
+    cmd = COMMON_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        echo 'int main() { }' | gcc -xc -
+        readelf -l a.out | grep ld-linux > "$@"
+    """,
+)
+
+genrule(
+    name = "build_sanity_check_gxx_pass2",
+    srcs = [
+        "image_initial_rootfs.tar",
+    ],
+    outs = ["sanity_check_gxx_pass2.txt"],
+    cmd = COMMON_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        echo '#include <iostream>\nint main(){{std::cout<<"Hello, World!";return 0;}}' | g++ -xc++ -
+        readelf -l a.out | grep ld-linux > "$@"
+    """,
+)
+
+sh_binary(
+    name = "run_initial_rootfs",
+    srcs = ["scripts/run_bwrap.sh"],
+    args = [
+        "$(location image_initial_rootfs.tar)",
+    ],
+    data = [
+        "image_initial_rootfs.tar",
+    ],
+)
