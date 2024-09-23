@@ -1802,3 +1802,31 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """,
 )
+
+genrule(
+    name = "build_bc",
+    srcs = [
+        "@bc_src.tar//file",
+        "image_initial_rootfs.tar",
+    ],
+    outs = ["bc_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        extract_source $(location @bc_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            CC=gcc ./configure --prefix=/usr -G -O3 -r
+            make
+            make test
+            make install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)

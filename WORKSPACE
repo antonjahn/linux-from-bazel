@@ -5,6 +5,8 @@ load(
     "//:versions.bzl",
     "BASH_SHA256",
     "BASH_VERSION",
+    "BC_SHA256",
+    "BC_VERSION",
     "BINUTILS_SHA256",
     "BINUTILS_VERSION",
     "BISON_SHA256",
@@ -271,4 +273,10 @@ http_file(
     name = "readline_src.tar",
     sha256 = READLINE_SHA256,
     urls = ["https://ftp.gnu.org/gnu/readline/readline-{}.tar.gz".format(READLINE_VERSION)],
+)
+
+http_file(
+    name = "bc_src.tar",
+    sha256 = BC_SHA256,
+    urls = ["https://github.com/gavinhoward/bc/releases/download/{0}/bc-{0}.tar.xz".format(BC_VERSION)],
 )
