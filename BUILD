@@ -1,4 +1,4 @@
-load("//:versions.bzl", "BISON_VERSION", "GLIBC_VERSION", "PERL_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
+load("//:versions.bzl", "BISON_VERSION", "GLIBC_VERSION", "PERL_VERSION", "READLINE_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -1728,4 +1728,42 @@ genrule(
         cd "$$START_DIR"
         tar cf "$@" -C "$$LFS" .
     """,
+)
+
+genrule(
+    name = "build_readline",
+    srcs = [
+        "@readline_src.tar//file",
+        "image_initial_rootfs.tar",
+    ],
+    outs = ["readline_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        extract_source $(location @readline_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            sed -i '/MV.*old/d' Makefile.in
+            sed -i '/{{OLDSUFF}}/c:' support/shlib-install
+            sed -i 's/-Wl,-rpath,[^ ]*//' support/shobj-conf
+
+            ./configure --prefix=/usr    \
+            --disable-static \
+            --with-curses    \
+            --docdir=/usr/share/doc/readline-{readline_version}
+            make SHLIB_LIBS=-lncursesw
+            make SHLIB_LIBS=-lncursesw install
+
+            install -v -m644 doc/*.{{ps,pdf,html,dvi}} /usr/share/doc/readline-{readline_version}
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        readline_version = READLINE_VERSION,
+    ),
 )

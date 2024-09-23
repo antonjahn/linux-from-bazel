@@ -51,6 +51,8 @@ load(
     "PERL_VERSION",
     "PYTHON_SHA256",
     "PYTHON_VERSION",
+    "READLINE_SHA256",
+    "READLINE_VERSION",
     "SED_SHA256",
     "SED_VERSION",
     "TAR_SHA256",
@@ -263,4 +265,10 @@ http_file(
     name = "zstd_src.tar",
     sha256 = ZSTD_SHA256,
     urls = ["https://github.com/facebook/zstd/releases/download/v{0}/zstd-{0}.tar.gz".format(ZSTD_VERSION)],
+)
+
+http_file(
+    name = "readline_src.tar",
+    sha256 = READLINE_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/readline/readline-{}.tar.gz".format(READLINE_VERSION)],
 )
