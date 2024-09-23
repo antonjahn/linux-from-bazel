@@ -1627,11 +1627,11 @@ genrule(
 
         # Remove files other than the ones installed by xz
         cd $$START_DIR
-        tar tf $(location xz_installed.tar) | grep -v '/$$' > xz_installed_files.txt
-        grep -v -f xz_installed_files.txt extracted_files.txt > extracted_files.txt.tmp
+        tar tf $(location xz_installed.tar) | grep -v '/$$' > files_to_keep.txt
+        grep -v -f files_to_keep.txt extracted_files.txt > extracted_files.txt.tmp
         mv extracted_files.txt.tmp extracted_files.txt
-
         cleanup_extracted_dependencies
+        
         cleanup_source
 
         cd "$$START_DIR"
@@ -1689,6 +1689,40 @@ genrule(
         "
 
         cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
+
+genrule(
+    name = "build_file_final",
+    srcs = [
+        "@file_src.tar//file",
+        "image_initial_rootfs.tar",
+        "file_installed.tar",
+    ],
+    outs = ["file_final_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_source $(location @file_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr
+            make
+            make check
+            make install
+        "
+
+        # Remove files other than the ones installed by file
+        cd $$START_DIR
+        tar tf $(location file_installed.tar) | grep -v '/$$' > files_to_keep.txt
+        grep -v -f files_to_keep.txt extracted_files.txt > extracted_files.txt.tmp
+        mv extracted_files.txt.tmp extracted_files.txt
+        cleanup_extracted_dependencies
+
         cleanup_source
 
         cd "$$START_DIR"
