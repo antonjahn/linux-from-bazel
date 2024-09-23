@@ -1408,3 +1408,58 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """,
 )
+
+# Note that the resulting tarball contains everything in the LFS directory, because of limitations in the packaging approach
+# Deviation, not running the make check at this point
+genrule(
+    name = "build_glibc_pass2",
+    srcs = [
+        "@glibc_src.tar//file",
+        "@glibc_fsh_patch//file",
+        "image_temporary_rootfs.tar",
+        "bison_installed.tar",
+        "python_installed.tar",
+        "texinfo_installed.tar",
+        "perl_installed.tar",
+        "gettext_installed.tar",
+    ],
+    outs = ["glibc_pass2_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_temporary_rootfs.tar)
+        for dep in $(SRCS); do
+            if [[ "$$dep" == *_installed.tar ]]; then
+                extract_dependency "$$dep"
+            fi
+        done
+
+        extract_source $(location @glibc_src.tar//file)
+        cp $(location @glibc_fsh_patch//file) $$LFS/src
+
+        run_bash_script_in_lfs "
+            cd /src
+            patch -Np1 -i $$(basename $(location @glibc_fsh_patch//file))
+            mkdir -v build
+            cd build
+            echo rootsbindir=/usr/sbin > configparms
+            ../configure --prefix=/usr                   \
+                --disable-werror                         \
+                --enable-kernel=4.19                     \
+                --enable-stack-protector=strong          \
+                --disable-nscd                           \
+                libc_cv_slibdir=/usr/lib
+            export MAKEFLAGS=-j$$(nproc)
+            export TESTSUITEFLAGS=-j$$(nproc)
+            make
+            # make check
+
+            touch /etc/ld.so.conf
+            sed '/test-installation/s@\\$$(PERL)@echo not running@' -i ../Makefile
+            make install
+        "
+
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
