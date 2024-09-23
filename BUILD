@@ -1,4 +1,4 @@
-load("//:versions.bzl", "BISON_VERSION", "GLIBC_VERSION", "PERL_VERSION", "UTIL_LINUX_VERSION")
+load("//:versions.bzl", "BISON_VERSION", "GLIBC_VERSION", "PERL_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -1601,4 +1601,42 @@ genrule(
         cd "$$START_DIR"
         tar cf "$@" -C "$$LFS" .
     """,
+)
+
+genrule(
+    name = "build_xz_final",
+    srcs = [
+        "@xz_src.tar//file",
+        "image_initial_rootfs.tar",
+        "xz_installed.tar",
+    ],
+    outs = ["xz_final_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        extract_source $(location @xz_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/xz-{xz_version}
+            make
+            make check
+            make install
+            rm -fv /usr/lib/liblzma.a
+        "
+
+        # Remove files other than the ones installed by xz
+        cd $$START_DIR
+        tar tf $(location xz_installed.tar) | grep -v '/$$' > xz_installed_files.txt
+        grep -v -f xz_installed_files.txt extracted_files.txt > extracted_files.txt.tmp
+        mv extracted_files.txt.tmp extracted_files.txt
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        xz_version = XZ_VERSION,
+    ),
 )
