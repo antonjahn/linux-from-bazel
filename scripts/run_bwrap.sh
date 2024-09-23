@@ -10,7 +10,7 @@ rm -rf $LFS
 mkdir -pv $LFS
 tar -xvf $1 -C $LFS
 
-bwrap --bind $LFS / --dev /dev --proc /proc --tmpfs /run --unshare-all /usr/bin/env -i \
+bwrap --bind $LFS / --dev /dev --proc /proc --tmpfs /run --unshare-all --uid 0 --gid 0 /usr/bin/env -i \
     HOME=/root \
     TERM="$TERM" \
     PS1='(lfs chroot) \u:\w\$ ' \
