@@ -2328,3 +2328,35 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """,
 )
+
+genrule(
+    name = "build_libxcrypt",
+    srcs = [
+        "@libxcrypt_src.tar//file",
+        "image_initial_rootfs.tar",
+    ],
+    outs = ["libxcrypt_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        extract_source $(location @libxcrypt_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr                \
+                        --enable-hashes=strong,glibc \
+                        --enable-obsolete-api=no     \
+                        --disable-static             \
+                        --disable-failure-tokens
+            make
+            make check
+            make install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)

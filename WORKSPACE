@@ -49,6 +49,8 @@ load(
     "IANA_ETC_VERSION",
     "LIBCAP_SHA256",
     "LIBCAP_VERSION",
+    "LIBXCRYPT_SHA256",
+    "LIBXCRYPT_VERSION",
     "LINUX_KERNEL_SHA256",
     "LINUX_KERNEL_VERSION",
     "LZ4_SHA256",
@@ -373,4 +375,10 @@ http_file(
     name = "libcap_src.tar",
     sha256 = LIBCAP_SHA256,
     urls = ["https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-{0}.tar.xz".format(LIBCAP_VERSION)],
+)
+
+http_file(
+    name = "libxcrypt_src.tar",
+    sha256 = LIBXCRYPT_SHA256,
+    urls = ["https://github.com/besser82/libxcrypt/releases/download/v{0}/libxcrypt-{0}.tar.xz".format(LIBXCRYPT_VERSION)],
 )
