@@ -2032,3 +2032,56 @@ genrule(
         pkgconf_version = PKGCONF_VERSION,
     ),
 )
+
+genrule(
+    name = "build_binutils_final",
+    srcs = [
+        "@binutils_src.tar//file",
+        "image_initial_rootfs.tar",
+        "zlib_installed.tar",
+        "dejagnu_installed.tar",
+        "binutils_pass2_installed.tar",
+    ],
+    outs = ["binutils_final_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location dejagnu_installed.tar)
+
+        extract_source $(location @binutils_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            mkdir -v build
+            cd build
+            ../configure --prefix=/usr       \
+                         --sysconfdir=/etc   \
+                         --enable-gold       \
+                         --enable-ld=default \
+                         --enable-plugins    \
+                         --enable-shared     \
+                         --disable-werror    \
+                         --enable-64-bit-bfd \
+                         --enable-new-dtags  \
+                         --with-system-zlib  \
+                         --enable-default-hash-style=gnu
+            make tooldir=/usr
+            make check
+            grep '^FAIL:' $$(find -name '*.log')
+            make tooldir=/usr install
+            rm -fv /usr/lib/lib{bfd,ctf,ctf-nobfd,gprofng,opcodes,sframe}.a
+        "
+
+        # Remove files other than the ones installed by binutils
+        cd $$START_DIR
+        tar tf $(location binutils_pass2_installed.tar) | grep -v '/$$' > files_to_keep.txt
+        grep -v -f files_to_keep.txt extracted_files.txt > extracted_files.txt.tmp
+        mv extracted_files.txt.tmp extracted_files.txt
+        cleanup_extracted_dependencies
+
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
