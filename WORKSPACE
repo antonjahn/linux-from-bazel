@@ -53,6 +53,8 @@ load(
     "MAKE_VERSION",
     "MAN_PAGES_SHA256",
     "MAN_PAGES_VERSION",
+    "MPC_SHA256",
+    "MPC_VERSION",
     "MPFR_SHA256",
     "MPFR_VERSION",
     "NCURSES_SHA256",
@@ -341,4 +343,10 @@ http_file(
     name = "mpfr_src.tar",
     sha256 = MPFR_SHA256,
     urls = ["https://ftp.gnu.org/gnu/mpfr/mpfr-{0}.tar.xz".format(MPFR_VERSION)],
+)
+
+http_file(
+    name = "mpc_src.tar",
+    sha256 = MPC_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/mpc/mpc-{0}.tar.gz".format(MPC_VERSION)],
 )
