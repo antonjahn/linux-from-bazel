@@ -35,6 +35,8 @@ load(
     "GETTEXT_VERSION",
     "GLIBC_SHA256",
     "GLIBC_VERSION",
+    "GMP_SHA256",
+    "GMP_VERSION",
     "GREP_SHA256",
     "GREP_VERSION",
     "GZIP_SHA256",
@@ -325,4 +327,10 @@ http_file(
     name = "pkgconf_src.tar",
     sha256 = PKGCONF_SHA256,
     urls = ["https://distfiles.ariadne.space/pkgconf/pkgconf-{0}.tar.xz".format(PKGCONF_VERSION)],
+)
+
+http_file(
+    name = "gmp_src.tar",
+    sha256 = GMP_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/gmp/gmp-{0}.tar.xz".format(GMP_VERSION)],
 )
