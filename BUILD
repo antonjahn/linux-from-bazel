@@ -2360,3 +2360,100 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """,
 )
+
+genrule(
+    name = "build_shadow",
+    srcs = [
+        "@shadow_src.tar//file",
+        "image_initial_rootfs.tar",
+        "libxcrypt_installed.tar",
+    ],
+    outs = ["shadow_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location libxcrypt_installed.tar)
+
+        extract_source $(location @shadow_src.tar//file)
+
+        run_bash_script_in_lfs "
+            set -euo pipefail
+            set -x
+            cd /src
+            sed -i 's/groups$$(EXEEXT) //' src/Makefile.in
+            find man -name Makefile.in -exec sed -i 's/groups\\.1 / /'   {} \\;
+            find man -name Makefile.in -exec sed -i 's/getspnam\\.3 / /' {} \\;
+            find man -name Makefile.in -exec sed -i 's/passwd\\.5 / /'   {} \\;
+
+            sed -e 's:#ENCRYPT_METHOD DES:ENCRYPT_METHOD YESCRYPT:' \
+                -e 's:/var/spool/mail:/var/mail:' \
+                -e '/PATH=/{s@/sbin:@@;s@/bin:@@}' \
+                -i etc/login.defs
+
+            touch /usr/bin/passwd
+            ./configure --sysconfdir=/etc                           --disable-static                            --with-{b,yes}crypt                         --without-libbsd                            --with-group-name-max-length=32
+            make
+            make exec_prefix=/usr install
+            make -C man install-man
+
+            # Create users
+            echo root:x:0:0:root:/root:/bin/bash > /etc/passwd
+            echo bin:x:1:1:bin:/dev/null:/usr/bin/false >> /etc/passwd
+            echo daemon:x:6:6:Daemon User:/dev/null:/usr/bin/false >> /etc/passwd
+            echo messagebus:x:18:18:D-Bus Message Daemon User:/run/dbus:/usr/bin/false >> /etc/passwd
+            echo uuidd:x:80:80:UUID Generation Daemon User:/dev/null:/usr/bin/false >> /etc/passwd
+            echo nobody:x:65534:65534:Unprivileged User:/dev/null:/usr/bin/false >> /etc/passwd
+
+            # Create groups
+            echo root:x:0: > /etc/group
+            echo bin:x:1:daemon >> /etc/group
+            echo sys:x:2: >> /etc/group
+            echo kmem:x:3: >> /etc/group
+            echo tape:x:4: >> /etc/group
+            echo tty:x:5: >> /etc/group
+            echo daemon:x:6: >> /etc/group
+            echo floppy:x:7: >> /etc/group
+            echo disk:x:8: >> /etc/group
+            echo lp:x:9: >> /etc/group
+            echo dialout:x:10: >> /etc/group
+            echo audio:x:11: >> /etc/group
+            echo video:x:12: >> /etc/group
+            echo utmp:x:13: >> /etc/group
+            echo cdrom:x:15: >> /etc/group
+            echo adm:x:16: >> /etc/group
+            echo messagebus:x:18: >> /etc/group
+            echo input:x:24: >> /etc/group
+            echo mail:x:34: >> /etc/group
+            echo kvm:x:61: >> /etc/group
+            echo uuidd:x:80: >> /etc/group
+            echo wheel:x:97: >> /etc/group
+            echo users:x:999: >> /etc/group
+            echo nogroup:x:65534: >> /etc/group
+
+            # Configure shadow
+            touch /etc/{shadow,gshadow}
+            pwconv
+            grpconv
+            mkdir -p /etc/default
+           
+            useradd -D --gid 999
+            sed -i '/MAIL/s/yes/no/' /etc/default/useradd
+        "
+
+        bwrap --bind $$LFS / --dev /dev --proc /proc --tmpfs /run --unshare-all --uid 0 --gid 0 /usr/bin/env -i \
+            HOME=/root \
+            MAKEFLAGS="-j$$(nproc)" \
+            TESTSUITEFLAGS="-j$$(nproc)" \
+            PATH=/bin:/usr/bin:/usr/sbin \
+            bash -c "
+                set -euo pipefail
+                set -x
+                echo 'linux-from-bazel' | passwd --stdin root
+            "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)

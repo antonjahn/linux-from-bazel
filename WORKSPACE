@@ -79,6 +79,8 @@ load(
     "READLINE_VERSION",
     "SED_SHA256",
     "SED_VERSION",
+    "SHADOW_SHA256",
+    "SHADOW_VERSION",
     "TAR_SHA256",
     "TAR_VERSION",
     "TCL_SHA256",
@@ -381,4 +383,10 @@ http_file(
     name = "libxcrypt_src.tar",
     sha256 = LIBXCRYPT_SHA256,
     urls = ["https://github.com/besser82/libxcrypt/releases/download/v{0}/libxcrypt-{0}.tar.xz".format(LIBXCRYPT_VERSION)],
+)
+
+http_file(
+    name = "shadow_src.tar",
+    sha256 = SHADOW_SHA256,
+    urls = ["https://github.com/shadow-maint/shadow/releases/download/{0}/shadow-{0}.tar.xz".format(SHADOW_VERSION)],
 )
