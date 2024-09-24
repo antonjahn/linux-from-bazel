@@ -1921,3 +1921,45 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """,
 )
+
+genrule(
+    name = "build_expect",
+    srcs = [
+        "@expect_src.tar//file",
+        "@expect_gcc14_patch//file",
+        "image_initial_rootfs.tar",
+        "tcl_installed.tar",
+    ],
+    outs = ["expect_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location tcl_installed.tar)
+
+        extract_source $(location @expect_src.tar//file)
+        cp $(location @expect_gcc14_patch//file) $$LFS/src
+
+
+        run_bash_script_in_lfs "
+            cd /src
+            patch -Np1 -i $$(basename $(location @expect_gcc14_patch//file))
+
+            ./configure --prefix=/usr           \
+                        --with-tcl=/usr/lib     \
+                        --enable-shared         \
+                        --disable-rpath         \
+                        --mandir=/usr/share/man \
+                        --with-tclinclude=/usr/include \
+
+            make
+            make test # Some tests fail, maybe related to the sandboxing, investigate stty_reads_stdout=1
+            make install
+            ln -svf expect5.45.4/libexpect5.45.4.so /usr/lib
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)

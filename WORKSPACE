@@ -17,6 +17,8 @@ load(
     "COREUTILS_VERSION",
     "DIFFUTILS_SHA256",
     "DIFFUTILS_VERSION",
+    "EXPECT_SHA256",
+    "EXPECT_VERSION",
     "FILE_SHA256",
     "FILE_VERSION",
     "FINDUTILS_SHA256",
@@ -295,4 +297,16 @@ http_file(
     name = "tcl_src.tar",
     sha256 = TCL_SHA256,
     urls = ["https://prdownloads.sourceforge.net/tcl/tcl{0}-src.tar.gz".format(TCL_VERSION)],
+)
+
+http_file(
+    name = "expect_src.tar",
+    sha256 = EXPECT_SHA256,
+    urls = ["https://prdownloads.sourceforge.net/expect/expect{0}.tar.gz".format(EXPECT_VERSION)],
+)
+
+http_file(
+    name = "expect_gcc14_patch",
+    sha256 = "517c0cdd5db949cdd99dfa38b7a6c3945e1524c50e3467028973298f2c76a92c",
+    urls = ["https://www.linuxfromscratch.org/patches/lfs/12.2/expect-5.45.4-gcc14-1.patch"],
 )
