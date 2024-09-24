@@ -15,6 +15,8 @@ load(
     "BZIP2_VERSION",
     "COREUTILS_SHA256",
     "COREUTILS_VERSION",
+    "DEJAGNU_SHA256",
+    "DEJAGNU_VERSION",
     "DIFFUTILS_SHA256",
     "DIFFUTILS_VERSION",
     "EXPECT_SHA256",
@@ -309,4 +311,10 @@ http_file(
     name = "expect_gcc14_patch",
     sha256 = "517c0cdd5db949cdd99dfa38b7a6c3945e1524c50e3467028973298f2c76a92c",
     urls = ["https://www.linuxfromscratch.org/patches/lfs/12.2/expect-5.45.4-gcc14-1.patch"],
+)
+
+http_file(
+    name = "dejagnu_src.tar",
+    sha256 = DEJAGNU_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/dejagnu/dejagnu-{}.tar.gz".format(DEJAGNU_VERSION)],
 )

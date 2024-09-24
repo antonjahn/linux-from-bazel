@@ -1,4 +1,4 @@
-load("//:versions.bzl", "BISON_VERSION", "FLEX_VERSION", "GLIBC_VERSION", "PERL_VERSION", "READLINE_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
+load("//:versions.bzl", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GLIBC_VERSION", "PERL_VERSION", "READLINE_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -1962,4 +1962,39 @@ genrule(
         cd "$$START_DIR"
         tar cf "$@" -C "$$LFS" .
     """,
+)
+
+genrule(
+    name = "build_dejagnu",
+    srcs = [
+        "@dejagnu_src.tar//file",
+        "image_initial_rootfs.tar",
+    ],
+    outs = ["dejagnu_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        extract_source $(location @dejagnu_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            mkdir -v build
+            cd build
+            ../configure --prefix=/usr
+            makeinfo --html --no-split -o doc/dejagnu.html ../doc/dejagnu.texi
+            makeinfo --plaintext       -o doc/dejagnu.txt  ../doc/dejagnu.texi
+            make check
+            make install
+            install -v -dm755  /usr/share/doc/dejagnu-{dejagnu_version}
+            install -v -m644   doc/dejagnu.{{html,txt}} /usr/share/doc/dejagnu-{dejagnu_version}
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        dejagnu_version = DEJAGNU_VERSION,
+    ),
 )
