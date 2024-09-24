@@ -57,6 +57,8 @@ load(
     "PATCH_VERSION",
     "PERL_SHA256",
     "PERL_VERSION",
+    "PKGCONF_SHA256",
+    "PKGCONF_VERSION",
     "PYTHON_SHA256",
     "PYTHON_VERSION",
     "READLINE_SHA256",
@@ -317,4 +319,10 @@ http_file(
     name = "dejagnu_src.tar",
     sha256 = DEJAGNU_SHA256,
     urls = ["https://ftp.gnu.org/gnu/dejagnu/dejagnu-{}.tar.gz".format(DEJAGNU_VERSION)],
+)
+
+http_file(
+    name = "pkgconf_src.tar",
+    sha256 = PKGCONF_SHA256,
+    urls = ["https://distfiles.ariadne.space/pkgconf/pkgconf-{0}.tar.xz".format(PKGCONF_VERSION)],
 )

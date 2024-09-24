@@ -1,4 +1,4 @@
-load("//:versions.bzl", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GLIBC_VERSION", "PERL_VERSION", "READLINE_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
+load("//:versions.bzl", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GLIBC_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -1996,5 +1996,39 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """.format(
         dejagnu_version = DEJAGNU_VERSION,
+    ),
+)
+
+genrule(
+    name = "build_pkgconf",
+    srcs = [
+        "@pkgconf_src.tar//file",
+        "image_initial_rootfs.tar",
+    ],
+    outs = ["pkgconf_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        extract_source $(location @pkgconf_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr              \
+                        --disable-static           \
+                        --docdir=/usr/share/doc/pkgconf-{pkgconf_version}
+            make
+            make install
+
+            ln -sv pkgconf   /usr/bin/pkg-config
+            ln -sv pkgconf.1 /usr/share/man/man1/pkg-config.1
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        pkgconf_version = PKGCONF_VERSION,
     ),
 )
