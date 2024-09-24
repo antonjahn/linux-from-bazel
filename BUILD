@@ -2299,3 +2299,32 @@ genrule(
         acl_version = ACL_VERSION,
     ),
 )
+
+genrule(
+    name = "build_libcap",
+    srcs = [
+        "@libcap_src.tar//file",
+        "image_initial_rootfs.tar",
+    ],
+    outs = ["libcap_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        extract_source $(location @libcap_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            # Prevent installation of the static library
+            sed -i '/install -m.*STA/d' libcap/Makefile
+            make prefix=/usr lib=lib
+            make test
+            make prefix=/usr lib=lib install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)

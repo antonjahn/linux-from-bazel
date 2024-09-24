@@ -47,6 +47,8 @@ load(
     "GZIP_VERSION",
     "IANA_ETC_SHA256",
     "IANA_ETC_VERSION",
+    "LIBCAP_SHA256",
+    "LIBCAP_VERSION",
     "LINUX_KERNEL_SHA256",
     "LINUX_KERNEL_VERSION",
     "LZ4_SHA256",
@@ -365,4 +367,10 @@ http_file(
     name = "acl_src.tar",
     sha256 = ACL_SHA256,
     urls = ["https://download.savannah.gnu.org/releases/acl/acl-{0}.tar.xz".format(ACL_VERSION)],
+)
+
+http_file(
+    name = "libcap_src.tar",
+    sha256 = LIBCAP_SHA256,
+    urls = ["https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-{0}.tar.xz".format(LIBCAP_VERSION)],
 )
