@@ -1,4 +1,4 @@
-load("//:versions.bzl", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GLIBC_VERSION", "GMP_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
+load("//:versions.bzl", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GLIBC_VERSION", "GMP_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -2148,5 +2148,46 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """.format(
         gmp_version = GMP_VERSION,
+    ),
+)
+
+genrule(
+    name = "build_mpfr",
+    srcs = [
+        "@mpfr_src.tar//file",
+        "image_initial_rootfs.tar",
+        "binutils_final_installed.tar",
+        "zlib_installed.tar",
+        "gmp_installed.tar",
+    ],
+    outs = ["mpfr_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location binutils_final_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location gmp_installed.tar)
+
+        extract_source $(location @mpfr_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr        \
+                        --disable-static     \
+                        --enable-thread-safe \
+                        --docdir=/usr/share/doc/mpfr-{mpfr_version}
+            make
+            make html
+            make check
+            make install
+            make install-html
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        mpfr_version = MPFR_VERSION,
     ),
 )
