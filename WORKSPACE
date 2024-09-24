@@ -3,6 +3,8 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
 load(
     "//:versions.bzl",
+    "ACL_SHA256",
+    "ACL_VERSION",
     "ATTR_SHA256",
     "ATTR_VERSION",
     "BASH_SHA256",
@@ -357,4 +359,10 @@ http_file(
     name = "attr_src.tar",
     sha256 = ATTR_SHA256,
     urls = ["https://download.savannah.gnu.org/releases/attr/attr-{0}.tar.gz".format(ATTR_VERSION)],
+)
+
+http_file(
+    name = "acl_src.tar",
+    sha256 = ACL_SHA256,
+    urls = ["https://download.savannah.gnu.org/releases/acl/acl-{0}.tar.xz".format(ACL_VERSION)],
 )

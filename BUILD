@@ -1,4 +1,4 @@
-load("//:versions.bzl", "ATTR_VERSION", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GLIBC_VERSION", "GMP_VERSION", "MPC_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
+load("//:versions.bzl", "ACL_VERSION", "ATTR_VERSION", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GLIBC_VERSION", "GMP_VERSION", "MPC_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -2264,5 +2264,38 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """.format(
         attr_version = ATTR_VERSION,
+    ),
+)
+
+genrule(
+    name = "build_acl",
+    srcs = [
+        "@acl_src.tar//file",
+        "image_initial_rootfs.tar",
+        "attr_installed.tar",
+    ],
+    outs = ["acl_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location attr_installed.tar)
+
+        extract_source $(location @acl_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr     \
+                        --disable-static  \
+                        --docdir=/usr/share/doc/acl-{acl_version}
+            make
+            make install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        acl_version = ACL_VERSION,
     ),
 )
