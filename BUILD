@@ -1,4 +1,4 @@
-load("//:versions.bzl", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GLIBC_VERSION", "GMP_VERSION", "MPC_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
+load("//:versions.bzl", "ATTR_VERSION", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GLIBC_VERSION", "GMP_VERSION", "MPC_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -2231,5 +2231,38 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """.format(
         mpc_version = MPC_VERSION,
+    ),
+)
+
+genrule(
+    name = "build_attr",
+    srcs = [
+        "@attr_src.tar//file",
+        "image_initial_rootfs.tar",
+    ],
+    outs = ["attr_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+
+        extract_source $(location @attr_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr     \
+                        --disable-static  \
+                        --sysconfdir=/etc \
+                        --docdir=/usr/share/doc/attr-{attr_version}
+            make
+            make check
+            make install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        attr_version = ATTR_VERSION,
     ),
 )

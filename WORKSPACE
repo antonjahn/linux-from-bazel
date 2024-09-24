@@ -3,6 +3,8 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
 load(
     "//:versions.bzl",
+    "ATTR_SHA256",
+    "ATTR_VERSION",
     "BASH_SHA256",
     "BASH_VERSION",
     "BC_SHA256",
@@ -349,4 +351,10 @@ http_file(
     name = "mpc_src.tar",
     sha256 = MPC_SHA256,
     urls = ["https://ftp.gnu.org/gnu/mpc/mpc-{0}.tar.gz".format(MPC_VERSION)],
+)
+
+http_file(
+    name = "attr_src.tar",
+    sha256 = ATTR_SHA256,
+    urls = ["https://download.savannah.gnu.org/releases/attr/attr-{0}.tar.gz".format(ATTR_VERSION)],
 )
