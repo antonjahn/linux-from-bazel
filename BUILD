@@ -262,9 +262,7 @@ genrule(
         "linux_headers_installed.tar",
     ],
     outs = ["libstdcxx_installed.tar"],
-    cmd = """
-        {common_script}
-
+    cmd = COMMON_SCRIPT + """
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
         extract_dependency $(location glibc_pass1_installed.tar)
@@ -284,7 +282,7 @@ genrule(
             --disable-multilib               \
             --disable-nls                    \
             --disable-libstdcxx-pch          \
-            --with-gxx-include-dir=/tools/$$LFS_TGT/include/c++/14.2.0
+            --with-gxx-include-dir=/tools/$$LFS_TGT/include/c++/{gcc_version}
 
         make -j"$$(nproc)"
         make DESTDIR="$$LFS" install
@@ -301,7 +299,7 @@ genrule(
         cd "$$START_DIR"
         tar cf "$@" -C "$$LFS" .
     """.format(
-        common_script = COMMON_SCRIPT,
+        gcc_version = GCC_VERSION,
     ),
 )
 
