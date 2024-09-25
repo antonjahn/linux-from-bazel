@@ -75,17 +75,21 @@ genrule(
     name = "build_gcc_pass1",
     srcs = [
         "@gcc_src.tar//file",
+        "@gmp_src.tar//file",
+        "@mpfr_src.tar//file",
+        "@mpc_src.tar//file",
         "binutils_pass1_installed.tar",
     ],
     outs = ["gcc_pass1_installed.tar"],
-    cmd = """
-        {common_script}
-
+    cmd = COMMON_SCRIPT + """
         extract_dependency $(location binutils_pass1_installed.tar)
 
-        mkdir -p gcc-build
-        tar xf $(location @gcc_src.tar//file) -C gcc-build --strip-components=1
-        cd gcc-build
+        mkdir -p /tmp/src/{{gmp,mpfr,mpc}}
+        tar xf $(location @gcc_src.tar//file) -C /tmp/src --strip-components=1
+        tar xf $(location @gmp_src.tar//file) -C /tmp/src/gmp --strip-components=1
+        tar xf $(location @mpfr_src.tar//file) -C /tmp/src/mpfr --strip-components=1
+        tar xf $(location @mpc_src.tar//file) -C /tmp/src/mpc --strip-components=1
+        cd /tmp/src
 
         case $$(uname -m) in
             x86_64)
@@ -93,9 +97,6 @@ genrule(
                     -i.orig gcc/config/i386/t-linux64
             ;;
         esac
-
-        # Download prerequisites
-        ./contrib/download_prerequisites
 
         mkdir -v build
         cd build
@@ -128,11 +129,11 @@ genrule(
             `dirname $$($$LFS_TGT-gcc -print-libgcc-file-name)`/include/limits.h
 
         cleanup_extracted_dependencies
+        rm -rf /tmp/src
 
         cd "$$START_DIR"
         tar cf "$@" -C "$$LFS" .
     """.format(
-        common_script = COMMON_SCRIPT,
         glibc_version = GLIBC_VERSION,
     ),
 )
