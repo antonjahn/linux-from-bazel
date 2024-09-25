@@ -1,4 +1,4 @@
-load("//:versions.bzl", "ACL_VERSION", "ATTR_VERSION", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GLIBC_VERSION", "GMP_VERSION", "MPC_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
+load("//:versions.bzl", "ACL_VERSION", "ATTR_VERSION", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GCC_VERSION", "GLIBC_VERSION", "GMP_VERSION", "MPC_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -171,7 +171,7 @@ genrule(
 )
 
 genrule(
-    name = "build_glibc",
+    name = "build_glibc_pass1",
     srcs = [
         "@glibc_src.tar//file",
         "@glibc_fsh_patch//file",
@@ -179,7 +179,7 @@ genrule(
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
     ],
-    outs = ["glibc_installed.tar"],
+    outs = ["glibc_pass1_installed.tar"],
     cmd = """
         {common_script}
 
@@ -237,14 +237,14 @@ genrule(
     srcs = [
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
     ],
     outs = ["sanity_check_gcc_pass1.txt"],
     cmd = COMMON_SCRIPT + """
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
         echo 'int main() { }' | $$LFS_TGT-gcc -xc -
@@ -258,7 +258,7 @@ genrule(
         "@gcc_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
     ],
     outs = ["libstdcxx_installed.tar"],
@@ -267,7 +267,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
         # Extract GCC source
@@ -311,7 +311,7 @@ genrule(
         "@m4_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
     ],
     outs = ["m4_installed.tar"],
@@ -320,7 +320,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
         # Extract M4 source
@@ -347,7 +347,7 @@ genrule(
         "@ncurses_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "libstdcxx_installed.tar",
         "linux_headers_installed.tar",
     ],
@@ -357,7 +357,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location libstdcxx_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
@@ -406,7 +406,7 @@ genrule(
     srcs = [
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
         "libstdcxx_installed.tar",
     ],
@@ -416,7 +416,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
         extract_dependency $(location libstdcxx_installed.tar)
 
@@ -433,7 +433,7 @@ genrule(
         "@bash_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
         "libstdcxx_installed.tar",
         "ncurses_installed.tar",
@@ -444,7 +444,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
         extract_dependency $(location libstdcxx_installed.tar)
         extract_dependency $(location ncurses_installed.tar)
@@ -481,7 +481,7 @@ genrule(
         "@coreutils_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
     ],
     outs = ["coreutils_installed.tar"],
@@ -490,7 +490,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
         # Extract Coreutils source
@@ -529,7 +529,7 @@ genrule(
         "@diffutils_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
     ],
     outs = ["diffutils_installed.tar"],
@@ -538,7 +538,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
         # Extract Diffutils source
@@ -565,7 +565,7 @@ genrule(
         "@file_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
     ],
     outs = ["file_installed.tar"],
@@ -574,7 +574,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
         # Extract File source
@@ -614,7 +614,7 @@ genrule(
         "@findutils_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
     ],
     outs = ["findutils_installed.tar"],
@@ -623,7 +623,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
         # Extract Findutils source
@@ -650,7 +650,7 @@ genrule(
         "@gawk_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
     ],
     outs = ["gawk_installed.tar"],
@@ -659,7 +659,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
         # Extract Gawk source
@@ -689,7 +689,7 @@ genrule(
         "@grep_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
     ],
     outs = ["grep_installed.tar"],
@@ -698,7 +698,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
         # Extract Grep source
@@ -725,7 +725,7 @@ genrule(
         "@gzip_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
     ],
     outs = ["gzip_installed.tar"],
@@ -734,7 +734,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
         # Extract Gzip source
@@ -761,7 +761,7 @@ genrule(
         "@make_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
     ],
     outs = ["make_installed.tar"],
@@ -770,7 +770,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
         # Extract Make source
@@ -798,7 +798,7 @@ genrule(
         "@patch_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
     ],
     outs = ["patch_installed.tar"],
@@ -807,7 +807,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
         # Extract Patch source
@@ -834,7 +834,7 @@ genrule(
         "@sed_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
     ],
     outs = ["sed_installed.tar"],
@@ -843,7 +843,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
         # Extract Sed source
@@ -870,7 +870,7 @@ genrule(
         "@tar_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
     ],
     outs = ["tar_installed.tar"],
@@ -879,7 +879,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
         # Extract Tar source
@@ -908,7 +908,7 @@ genrule(
         "@xz_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
     ],
     outs = ["xz_installed.tar"],
@@ -917,7 +917,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
         # Extract Xz source
@@ -947,7 +947,7 @@ genrule(
         "@binutils_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
     ],
     outs = ["binutils_pass2_installed.tar"],
@@ -956,7 +956,7 @@ genrule(
 
         extract_dependency $(location binutils_pass1_installed.tar)
         extract_dependency $(location gcc_pass1_installed.tar)
-        extract_dependency $(location glibc_installed.tar)
+        extract_dependency $(location glibc_pass1_installed.tar)
         extract_dependency $(location linux_headers_installed.tar)
 
         # Extract Binutils source
@@ -999,7 +999,7 @@ genrule(
         "@gcc_src.tar//file",
         "binutils_pass1_installed.tar",
         "gcc_pass1_installed.tar",
-        "glibc_installed.tar",
+        "glibc_pass1_installed.tar",
         "linux_headers_installed.tar",
         "libstdcxx_installed.tar",
     ],
@@ -1088,11 +1088,8 @@ cleanup_source() {
 genrule(
     name = "image_temporary_rootfs",
     srcs = [
-        "binutils_pass1_installed.tar",
-        "gcc_pass1_installed.tar",
         "linux_headers_installed.tar",
-        "glibc_installed.tar",
-        "libstdcxx_installed.tar",
+        "glibc_pass1_installed.tar",
         "m4_installed.tar",
         "ncurses_installed.tar",
         "bash_installed.tar",
@@ -1425,6 +1422,7 @@ genrule(
         "texinfo_installed.tar",
         "perl_installed.tar",
         "gettext_installed.tar",
+        "glibc_pass1_installed.tar",
     ],
     outs = ["glibc_pass2_installed.tar"],
     cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
