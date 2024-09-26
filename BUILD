@@ -71,6 +71,7 @@ genrule(
     ),
 )
 
+# Deviation: do not enable -pie and -ssp by default, to avoid breaking the binutils check
 genrule(
     name = "build_gcc_pass1",
     srcs = [
@@ -107,8 +108,6 @@ genrule(
             --with-sysroot="$$LFS"                         \
             --with-newlib                                  \
             --without-headers                              \
-            --enable-default-pie                           \
-            --enable-default-ssp                           \
             --disable-nls                                  \
             --disable-shared                               \
             --disable-multilib                             \
@@ -505,6 +504,10 @@ genrule(
 
         make -j"$$(nproc)"
         make DESTDIR=$$LFS install
+
+        # Deviation: add extra symlinks for compatibility with glibc test suite
+        mkdir -pv $$LFS/bin
+        ln -sv /usr/bin/cat $$LFS/bin/cat
 
         # Move programs to the final expected locations
         mv -v $$LFS/usr/bin/chroot              $$LFS/usr/sbin
@@ -991,6 +994,7 @@ genrule(
     ),
 )
 
+# Deviation: do not enable -pie and -ssp by default, to avoid breaking the binutils check
 genrule(
     name = "build_gcc_pass2",
     srcs = [
@@ -1037,8 +1041,6 @@ genrule(
             LDFLAGS_FOR_TARGET=-L$$PWD/$$LFS_TGT/libgcc    \
             --prefix=/usr                                  \
             --with-build-sysroot=$$LFS                     \
-            --enable-default-pie                           \
-            --enable-default-ssp                           \
             --disable-nls                                  \
             --disable-multilib                             \
             --disable-libatomic                            \
@@ -1054,6 +1056,11 @@ genrule(
 
         ln -sv gcc $$LFS/usr/bin/cc
 
+        # Remove files other than the ones installed by libstdcxx
+        cd $$START_DIR
+        tar tf $(location libstdcxx_installed.tar) | grep -v '/$$' > files_to_keep.txt
+        grep -v -f files_to_keep.txt extracted_files.txt > extracted_files.txt.tmp
+        mv extracted_files.txt.tmp extracted_files.txt
         cleanup_extracted_dependencies
 
         cd "$$START_DIR"
@@ -1064,12 +1071,14 @@ genrule(
 ENTER_LFS_SCRIPT = """
 
 run_bash_script_in_lfs() {
-    bwrap --bind $$LFS / --dev /dev --proc /proc --tmpfs /run --unshare-all /usr/bin/env -i \
+    bwrap --bind $$LFS / --dev /dev --proc /proc --tmpfs /run --unshare-all --uid 0 --gid 0 /usr/bin/env -i \
             HOME=/root \
             MAKEFLAGS="-j$$(nproc)" \
             TESTSUITEFLAGS="-j$$(nproc)" \
             PATH=/bin:/usr/bin:/usr/sbin \
-            bash -c "$$1"
+            bash -c "set -euo pipefail
+set -x
+$$1"
 }
 
 extract_source() {
@@ -1408,7 +1417,10 @@ genrule(
 )
 
 # Note that the resulting tarball contains everything in the LFS directory, because of limitations in the packaging approach
-# Deviation, not running the make check at this point
+# Deviation: do not run the full make check suite, just check-abi due to expected/sporadic failures
+#  see e.g. https://sourceware.org/glibc/wiki/Testing/Containers
+#           https://sourceware.org/glibc/wiki/Testing/Tests
+#           https://www.linuxfromscratch.org/lfs/view/stable/chapter08/glibc.html
 genrule(
     name = "build_glibc_pass2",
     srcs = [
@@ -1420,16 +1432,15 @@ genrule(
         "texinfo_installed.tar",
         "perl_installed.tar",
         "gettext_installed.tar",
-        "glibc_pass1_installed.tar",
     ],
     outs = ["glibc_pass2_installed.tar"],
     cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
         extract_dependency $(location image_temporary_rootfs.tar)
-        for dep in $(SRCS); do
-            if [[ "$$dep" == *_installed.tar ]]; then
-                extract_dependency "$$dep"
-            fi
-        done
+        extract_dependency $(location bison_installed.tar)
+        extract_dependency $(location python_installed.tar)
+        extract_dependency $(location texinfo_installed.tar)
+        extract_dependency $(location perl_installed.tar)
+        extract_dependency $(location gettext_installed.tar)
 
         extract_source $(location @glibc_src.tar//file)
         cp $(location @glibc_fsh_patch//file) $$LFS/src
@@ -1447,11 +1458,36 @@ genrule(
                 --disable-nscd                           \
                 libc_cv_slibdir=/usr/lib
             make
-            # make check
+            make check-abi
 
             touch /etc/ld.so.conf
             sed '/test-installation/s@\\$$(PERL)@echo not running@' -i ../Makefile
             make install
+
+            # Fix hardcoded path to the executable loader in the ldd script
+            sed '/RTLDLIST=/s@/usr@@g' -i /usr/bin/ldd
+
+            # Install locales
+            localedef -i C -f UTF-8 C.UTF-8
+            localedef -i en_US -f ISO-8859-1 en_US
+            localedef -i en_US -f UTF-8 en_US.UTF-8
+
+            # Add nsswitch.conf
+            echo 'passwd: files' > /etc/nsswitch.conf
+            echo 'group: files' >> /etc/nsswitch.conf
+            echo 'shadow: files' >> /etc/nsswitch.conf
+            echo 'hosts: files dns' >> /etc/nsswitch.conf
+            echo 'networks: files' >> /etc/nsswitch.conf
+            echo 'protocols: files' >> /etc/nsswitch.conf
+            echo 'services: files' >> /etc/nsswitch.conf
+            echo 'ethers: files' >> /etc/nsswitch.conf
+            echo 'rpc: files' >> /etc/nsswitch.conf
+
+            # Configure the Dynamic Loader
+            echo '/usr/local/lib' > /etc/ld.so.conf
+            echo '/opt/lib' >> /etc/ld.so.conf
+            echo 'include /etc/ld.so.conf.d/*.conf' >> /etc/ld.so.conf
+            mkdir -pv /etc/ld.so.conf.d
         "
 
         cleanup_source
@@ -2038,12 +2074,14 @@ genrule(
         "zlib_installed.tar",
         "dejagnu_installed.tar",
         "binutils_pass2_installed.tar",
+        "bc_installed.tar",  # required for gold's relro_test
     ],
     outs = ["binutils_final_installed.tar"],
     cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
         extract_dependency $(location image_initial_rootfs.tar)
         extract_dependency $(location zlib_installed.tar)
         extract_dependency $(location dejagnu_installed.tar)
+        extract_dependency $(location bc_installed.tar)
 
         extract_source $(location @binutils_src.tar//file)
 
@@ -2064,7 +2102,6 @@ genrule(
                          --enable-default-hash-style=gnu
             make tooldir=/usr
             make check
-            grep '^FAIL:' $$(find -name '*.log')
             make tooldir=/usr install
             rm -fv /usr/lib/lib{bfd,ctf,ctf-nobfd,gprofng,opcodes,sframe}.a
         "
@@ -2431,7 +2468,7 @@ genrule(
             pwconv
             grpconv
             mkdir -p /etc/default
-           
+
             useradd -D --gid 999
             sed -i '/MAIL/s/yes/no/' /etc/default/useradd
         "
@@ -2452,5 +2489,137 @@ genrule(
 
         cd "$$START_DIR"
         tar cf "$@" -C "$$LFS" .
+    """,
+)
+
+genrule(
+    name = "build_gcc_final",
+    srcs = [
+        "@gcc_src.tar//file",
+        "image_initial_rootfs.tar",
+        "binutils_final_installed.tar",
+        "zlib_installed.tar",
+        "zstd_installed.tar",
+        "mpfr_installed.tar",
+        "gmp_installed.tar",
+        "mpc_installed.tar",
+        "dejagnu_installed.tar",  # required for the tests
+        "expect_installed.tar",  # required for the tests
+        "tcl_installed.tar",  # required for the tests
+        "flex_installed.tar",
+        "shadow_installed.tar",  # required for the tests, whoami wants to read /etc/passwd
+        "gcc_pass2_installed.tar",
+    ],
+    outs = ["gcc_final_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location binutils_final_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location mpfr_installed.tar)
+        extract_dependency $(location gmp_installed.tar)
+        extract_dependency $(location mpc_installed.tar)
+        extract_dependency $(location dejagnu_installed.tar)
+        extract_dependency $(location expect_installed.tar)
+        extract_dependency $(location tcl_installed.tar)
+        extract_dependency $(location flex_installed.tar)
+        extract_dependency $(location zstd_installed.tar)
+        extract_dependency $(location shadow_installed.tar)
+
+        extract_source $(location @gcc_src.tar//file)
+
+        run_bash_script_in_lfs "
+            # Compatibility symlink for the tests
+            ln -s /usr/bin/stty /bin/stty
+
+            cd /src
+            case $$(uname -m) in
+                x86_64)
+                    sed -e '/m64=/s/lib64/lib/' \
+                        -i.orig gcc/config/i386/t-linux64
+                ;;
+            esac
+
+            mkdir -v build
+            cd build
+
+            ../configure --prefix=/usr            \
+                         LD=ld                    \
+                         --enable-languages=c,c++ \
+                         --enable-host-pie        \
+                         --disable-multilib       \
+                         --disable-bootstrap      \
+                         --disable-fixincludes    \
+                         --with-system-zlib
+            make
+
+            # Apply changes according to the LFS book
+            ulimit -s -H unlimited
+            sed -e /cpython/d -i ../gcc/testsuite/gcc.dg/plugin/plugin.exp
+            sed -e \'s/no-pic /&-no-pie /\' -i ../gcc/testsuite/gcc.target/i386/pr113689-1.c
+            sed -e \'s/300000/(1|300000)/\' -i ../libgomp/testsuite/libgomp.c-c++-common/pr109062.c
+            sed -e \'s/{ target nonpic } //\'  -e '/GOTPCREL/d' -i ../gcc/testsuite/gcc.target/i386/fentryname3.c
+
+            # Remove failing test related to invalid network configuration
+            rm -f ../gcc/testsuite/g++.dg/modules/bad-mapper-3.C
+
+            make check
+
+            make install
+
+            # Deviation: do not change the ownership of the include directory, due to the sandboxing limitations
+            # chown -v -R root:root /usr/lib/gcc/\\$$(gcc -dumpmachine)/14.2.0/include{,-fixed}
+
+            ln -svr /usr/bin/cpp /usr/lib
+            ln -sv gcc.1 /usr/share/man/man1/cc.1
+            ln -sfv ../../libexec/gcc/\\$$(gcc -dumpmachine)/14.2.0/liblto_plugin.so \
+                /usr/lib/bfd-plugins/
+
+            mkdir -pv /usr/share/gdb/auto-load/usr/lib
+            mv -v /usr/lib/*gdb.py /usr/share/gdb/auto-load/usr/lib
+        "
+
+        # Remove files other than the ones installed by gcc
+        cd $$START_DIR
+        tar tf $(location gcc_pass2_installed.tar) | grep -v '/$$' > files_to_keep.txt
+        grep -v -f files_to_keep.txt extracted_files.txt > extracted_files.txt.tmp
+        mv extracted_files.txt.tmp extracted_files.txt
+        cleanup_extracted_dependencies
+
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
+
+genrule(
+    name = "build_sanity_check_gcc_final",
+    srcs = [
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "mpc_installed.tar",
+        "mpfr_installed.tar",
+        "gmp_installed.tar",
+        "zlib_installed.tar",
+        "zstd_installed.tar",
+    ],
+    outs = ["sanity_check_gcc_final.txt"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        for dep in $(SRCS); do
+            extract_dependency $$dep
+        done
+    
+        run_bash_script_in_lfs "
+            echo \'int main(){}\' > dummy.c
+            cc dummy.c -v -Wl,--verbose |& tee dummy.log
+            readelf -l a.out | grep \': /lib\'
+            grep -E -o \'/usr/lib.*/S?crt[1in].*succeeded\' dummy.log
+            grep -B4 \'^ /usr/include\' dummy.log
+            grep \'SEARCH.*/usr/lib\' dummy.log | sed \'s|; |\\n|g\'
+            grep \'/lib.*/libc.so.6\' dummy.log
+            grep found dummy.log
+        "
+
+        cat "$$LFS/dummy.log" > "$@"
     """,
 )
