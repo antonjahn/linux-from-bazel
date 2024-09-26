@@ -73,6 +73,8 @@ load(
     "PERL_VERSION",
     "PKGCONF_SHA256",
     "PKGCONF_VERSION",
+    "PSMISC_SHA256",
+    "PSMISC_VERSION",
     "PYTHON_SHA256",
     "PYTHON_VERSION",
     "READLINE_SHA256",
@@ -389,4 +391,10 @@ http_file(
     name = "shadow_src.tar",
     sha256 = SHADOW_SHA256,
     urls = ["https://github.com/shadow-maint/shadow/releases/download/{0}/shadow-{0}.tar.xz".format(SHADOW_VERSION)],
+)
+
+http_file(
+    name = "psmisc_src.tar",
+    sha256 = PSMISC_SHA256,
+    urls = ["https://prdownloads.sourceforge.net/psmisc/psmisc-{0}.tar.xz".format(PSMISC_VERSION)],
 )
