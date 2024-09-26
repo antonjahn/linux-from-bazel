@@ -1,4 +1,4 @@
-load("//:versions.bzl", "ACL_VERSION", "ATTR_VERSION", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GCC_VERSION", "GLIBC_VERSION", "GMP_VERSION", "MPC_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
+load("//:versions.bzl", "ACL_VERSION", "ATTR_VERSION", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GCC_VERSION", "GLIBC_VERSION", "GMP_VERSION", "MPC_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "SED_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -2686,4 +2686,57 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """,
     tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/ncurses.html"],
+)
+
+genrule(
+    name = "build_sed_final",
+    srcs = [
+        "@sed_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "mpc_installed.tar",
+        "mpfr_installed.tar",
+        "gmp_installed.tar",
+        "zlib_installed.tar",
+        "zstd_installed.tar",
+        "sed_installed.tar",
+    ],
+    outs = ["sed_final_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location mpc_installed.tar)
+        extract_dependency $(location mpfr_installed.tar)
+        extract_dependency $(location gmp_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location zstd_installed.tar)
+
+        extract_source $(location @sed_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr
+            make
+            make html
+            make check
+            make install
+            install -d -m755           /usr/share/doc/sed-{sed_version}
+            install -m644 doc/sed.html /usr/share/doc/sed-{sed_version}
+        "
+
+        # Remove files other than the ones installed by sed
+        cd $$START_DIR
+        tar tf $(location sed_installed.tar) | grep -v '/$$' > files_to_keep.txt
+        grep -v -f files_to_keep.txt extracted_files.txt > extracted_files.txt.tmp
+        mv extracted_files.txt.tmp extracted_files.txt
+        cleanup_extracted_dependencies
+
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        sed_version = SED_VERSION,
+    ),
+    tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/sed.html"],
 )
