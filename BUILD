@@ -1,4 +1,4 @@
-load("//:versions.bzl", "ACL_VERSION", "ATTR_VERSION", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GCC_VERSION", "GLIBC_VERSION", "GMP_VERSION", "MPC_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "SED_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
+load("//:versions.bzl", "ACL_VERSION", "ATTR_VERSION", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GCC_VERSION", "GETTEXT_VERSION", "GLIBC_VERSION", "GMP_VERSION", "MPC_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "SED_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -2780,4 +2780,52 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """,
     tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/psmisc.html"],
+)
+
+genrule(
+    name = "build_gettext_final",
+    srcs = [
+        "@gettext_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "mpc_installed.tar",
+        "mpfr_installed.tar",
+        "gmp_installed.tar",
+        "zlib_installed.tar",
+        "zstd_installed.tar",
+        "ncurses_final_installed.tar",
+    ],
+    outs = ["gettext_final_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location mpc_installed.tar)
+        extract_dependency $(location mpfr_installed.tar)
+        extract_dependency $(location gmp_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location zstd_installed.tar)
+        extract_dependency $(location ncurses_final_installed.tar)
+
+        extract_source $(location @gettext_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr    \
+                        --disable-static \
+                        --docdir=/usr/share/doc/gettext-{gettext_version}
+            make
+            make check
+            make install
+            chmod -v 0755 /usr/lib/preloadable_libintl.so
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        gettext_version = GETTEXT_VERSION,
+    ),
+    tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/gettext.html"],
 )
