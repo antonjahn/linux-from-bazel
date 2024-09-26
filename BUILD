@@ -2608,7 +2608,7 @@ genrule(
         for dep in $(SRCS); do
             extract_dependency $$dep
         done
-    
+
         run_bash_script_in_lfs "
             echo \'int main(){}\' > dummy.c
             cc dummy.c -v -Wl,--verbose |& tee dummy.log
