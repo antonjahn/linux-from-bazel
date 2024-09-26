@@ -2623,3 +2623,67 @@ genrule(
         cat "$$LFS/dummy.log" > "$@"
     """,
 )
+
+genrule(
+    name = "build_ncurses_final",
+    srcs = [
+        "@ncurses_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "mpc_installed.tar",
+        "mpfr_installed.tar",
+        "gmp_installed.tar",
+        "zlib_installed.tar",
+        "zstd_installed.tar",
+        "pkgconf_installed.tar",
+    ],
+    outs = ["ncurses_final_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location mpc_installed.tar)
+        extract_dependency $(location mpfr_installed.tar)
+        extract_dependency $(location gmp_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location zstd_installed.tar)
+        extract_dependency $(location pkgconf_installed.tar)
+
+        extract_source $(location @ncurses_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr           \
+                        --mandir=/usr/share/man \
+                        --with-shared           \
+                        --without-debug         \
+                        --without-normal        \
+                        --with-cxx-shared       \
+                        --enable-pc-files       \
+                        --with-pkg-config-libdir=/usr/lib/pkgconfig
+            make
+
+            make DESTDIR=\\$$PWD/dest install
+            install -vm755 dest/usr/lib/libncursesw.so.6.5 /usr/lib
+            rm -v  dest/usr/lib/libncursesw.so.6.5
+            sed -e 's/^#if.*XOPEN.*$$/#if 1/' \
+                -i dest/usr/include/curses.h
+            cp -av dest/* /
+
+            for lib in ncurses form panel menu ; do
+                ln -sfv lib\\$${lib}w.so /usr/lib/lib\\$${lib}.so
+                ln -sfv \\$${lib}w.pc    /usr/lib/pkgconfig/\\$${lib}.pc
+            done
+
+            ln -sfv libncursesw.so /usr/lib/libcurses.so
+
+            # Deviation: do not install the documentation
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+    tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/ncurses.html"],
+)
