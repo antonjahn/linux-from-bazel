@@ -2829,3 +2829,55 @@ genrule(
     ),
     tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/gettext.html"],
 )
+
+genrule(
+    name = "build_bison_final",
+    srcs = [
+        "@bison_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "mpc_installed.tar",
+        "mpfr_installed.tar",
+        "gmp_installed.tar",
+        "zlib_installed.tar",
+        "zstd_installed.tar",
+        "flex_installed.tar",
+        "bison_installed.tar",
+    ],
+    outs = ["bison_final_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location mpc_installed.tar)
+        extract_dependency $(location mpfr_installed.tar)
+        extract_dependency $(location gmp_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location zstd_installed.tar)
+        extract_dependency $(location flex_installed.tar)
+
+        extract_source $(location @bison_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr --docdir=/usr/share/doc/bison-{bison_version}
+            make
+            make check
+            make install
+        "
+
+        # Remove files other than the ones installed by bison
+        cd $$START_DIR
+        tar tf $(location bison_installed.tar) | grep -v '/$$' > files_to_keep.txt
+        grep -v -f files_to_keep.txt extracted_files.txt > extracted_files.txt.tmp
+        mv extracted_files.txt.tmp extracted_files.txt
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        bison_version = BISON_VERSION,
+    ),
+    tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/bison.html"],
+)
