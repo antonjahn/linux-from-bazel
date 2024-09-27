@@ -43,6 +43,8 @@ load(
     "GLIBC_VERSION",
     "GMP_SHA256",
     "GMP_VERSION",
+    "GPERF_SHA256",
+    "GPERF_VERSION",
     "GREP_SHA256",
     "GREP_VERSION",
     "GZIP_SHA256",
@@ -413,4 +415,10 @@ http_file(
     name = "gdbm_src.tar",
     sha256 = GDBM_SHA256,
     urls = ["https://ftp.gnu.org/gnu/gdbm/gdbm-{0}.tar.gz".format(GDBM_VERSION)],
+)
+
+http_file(
+    name = "gperf_src.tar",
+    sha256 = GPERF_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/gperf/gperf-{0}.tar.gz".format(GPERF_VERSION)],
 )
