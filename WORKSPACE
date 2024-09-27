@@ -35,6 +35,8 @@ load(
     "GAWK_VERSION",
     "GCC_SHA256",
     "GCC_VERSION",
+    "GDBM_SHA256",
+    "GDBM_VERSION",
     "GETTEXT_SHA256",
     "GETTEXT_VERSION",
     "GLIBC_SHA256",
@@ -405,4 +407,10 @@ http_file(
     name = "libtool_src.tar",
     sha256 = LIBTOOL_SHA256,
     urls = ["https://ftp.gnu.org/gnu/libtool/libtool-{0}.tar.xz".format(LIBTOOL_VERSION)],
+)
+
+http_file(
+    name = "gdbm_src.tar",
+    sha256 = GDBM_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/gdbm/gdbm-{0}.tar.gz".format(GDBM_VERSION)],
 )
