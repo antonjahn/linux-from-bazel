@@ -49,6 +49,8 @@ load(
     "IANA_ETC_VERSION",
     "LIBCAP_SHA256",
     "LIBCAP_VERSION",
+    "LIBTOOL_SHA256",
+    "LIBTOOL_VERSION",
     "LIBXCRYPT_SHA256",
     "LIBXCRYPT_VERSION",
     "LINUX_KERNEL_SHA256",
@@ -397,4 +399,10 @@ http_file(
     name = "psmisc_src.tar",
     sha256 = PSMISC_SHA256,
     urls = ["https://prdownloads.sourceforge.net/psmisc/psmisc-{0}.tar.xz".format(PSMISC_VERSION)],
+)
+
+http_file(
+    name = "libtool_src.tar",
+    sha256 = LIBTOOL_SHA256,
+    urls = ["https://ftp.gnu.org/gnu/libtool/libtool-{0}.tar.xz".format(LIBTOOL_VERSION)],
 )

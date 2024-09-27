@@ -2990,3 +2990,46 @@ genrule(
         bash_version = BASH_VERSION,
     ),
 )
+
+genrule(
+    name = "build_libtool",
+    srcs = [
+        "@libtool_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "mpc_installed.tar",
+        "mpfr_installed.tar",
+        "gmp_installed.tar",
+        "zlib_installed.tar",
+        "zstd_installed.tar",
+    ],
+    outs = ["libtool_final_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location mpc_installed.tar)
+        extract_dependency $(location mpfr_installed.tar)
+        extract_dependency $(location gmp_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location zstd_installed.tar)
+
+        extract_source $(location @libtool_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr
+            make
+            # Do not fail the build if the tests fail, due to at least 7 known issues according to the LFS book
+            make -k check || true
+            make install
+            # Remove static library
+            rm -fv /usr/lib/libltdl.a
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
