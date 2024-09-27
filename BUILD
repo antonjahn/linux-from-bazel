@@ -1,4 +1,4 @@
-load("//:versions.bzl", "ACL_VERSION", "ATTR_VERSION", "BASH_VERSION", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GCC_VERSION", "GETTEXT_VERSION", "GLIBC_VERSION", "GMP_VERSION", "GPERF_VERSION", "MPC_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "SED_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
+load("//:versions.bzl", "ACL_VERSION", "ATTR_VERSION", "BASH_VERSION", "BISON_VERSION", "DEJAGNU_VERSION", "EXPAT_VERSION", "FLEX_VERSION", "GCC_VERSION", "GETTEXT_VERSION", "GLIBC_VERSION", "GMP_VERSION", "GPERF_VERSION", "MPC_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "SED_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -3115,5 +3115,48 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """.format(
         gperf_version = GPERF_VERSION,
+    ),
+)
+
+genrule(
+    name = "build_expat",
+    srcs = [
+        "@expat_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "mpc_installed.tar",
+        "mpfr_installed.tar",
+        "gmp_installed.tar",
+        "zlib_installed.tar",
+        "zstd_installed.tar",
+    ],
+    outs = ["expat_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location mpc_installed.tar)
+        extract_dependency $(location mpfr_installed.tar)
+        extract_dependency $(location gmp_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location zstd_installed.tar)
+
+        extract_source $(location @expat_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/expat-{expat_version}
+            make
+            make check
+            make install
+            install -v -m644 doc/*.{{html,css}} /usr/share/doc/expat-{expat_version}
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        expat_version = EXPAT_VERSION,
     ),
 )

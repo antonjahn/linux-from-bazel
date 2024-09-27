@@ -23,6 +23,8 @@ load(
     "DEJAGNU_VERSION",
     "DIFFUTILS_SHA256",
     "DIFFUTILS_VERSION",
+    "EXPAT_SHA256",
+    "EXPAT_VERSION",
     "EXPECT_SHA256",
     "EXPECT_VERSION",
     "FILE_SHA256",
@@ -421,4 +423,10 @@ http_file(
     name = "gperf_src.tar",
     sha256 = GPERF_SHA256,
     urls = ["https://ftp.gnu.org/gnu/gperf/gperf-{0}.tar.gz".format(GPERF_VERSION)],
+)
+
+http_file(
+    name = "expat_src.tar",
+    sha256 = EXPAT_SHA256,
+    urls = ["https://prdownloads.sourceforge.net/expat/expat-{0}.tar.xz".format(EXPAT_VERSION)],
 )
