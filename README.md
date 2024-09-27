@@ -6,6 +6,11 @@ We want to build a Linux system from Scratch as described in the Linux From Scra
 
 Bazel is a highly scalable build system that is typically used for large, complex builds. Using Bazel to manage the steps in LFS can make things reproducible and more efficient by using caching, parallelism, and dependency management.
 
+## Backlog
+- Refactor build target naming and tarball naming
+  - consider introducing temporary and removing final in target and tarball names
+  - consider naming tarbals with a version number
+  - consider using label names for dependencies
 
 ## Observations
 
