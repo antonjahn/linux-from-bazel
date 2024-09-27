@@ -67,3 +67,12 @@ I.e. the packages are now overlapping, and do not have a clear separation.
 The LFS book has a make check step for some packages, which is included in the build step for each package.
 That makes it hard to iterate over the build process, because the the make check steps are slow.
 It makes it hard to refactor the build system, e.g. cleanup functions, paths, env vars, etc, because they trigger a full rebuild.
+
+### File ownership and permissions 
+
+Currently, the file permissions and ownership depend on the host system. The created tar files contain the host system's user and group ids. This can be problematic when extracting the tar files on a different system, e.g. a qemu/vm/real host. The proper solution would be to set the user and group ids to 0 (root) during the build process. However, changing the user and group ids is not trivial, and needs to be decoupled from the host.
+
+Solution ideas:
+* use unshare and create own mounts for the build > seems to require extra capabilities to set group ids
+* use full featured containerization, e.g. docker, podman, etc.
+* use https://github.com/containers/fuse-overlayfs as a user space overlayfs implementation with uid/gid remapping

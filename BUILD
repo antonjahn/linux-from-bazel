@@ -1,4 +1,4 @@
-load("//:versions.bzl", "ACL_VERSION", "ATTR_VERSION", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GCC_VERSION", "GETTEXT_VERSION", "GLIBC_VERSION", "GMP_VERSION", "MPC_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "SED_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
+load("//:versions.bzl", "ACL_VERSION", "ATTR_VERSION", "BASH_VERSION", "BISON_VERSION", "DEJAGNU_VERSION", "FLEX_VERSION", "GCC_VERSION", "GETTEXT_VERSION", "GLIBC_VERSION", "GMP_VERSION", "MPC_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "SED_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -2929,4 +2929,64 @@ genrule(
         tar cf "$@" -C "$$LFS" .
     """,
     tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/grep.html"],
+)
+
+genrule(
+    name = "build_bash_final",
+    srcs = [
+        "@bash_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "mpc_installed.tar",
+        "mpfr_installed.tar",
+        "gmp_installed.tar",
+        "zlib_installed.tar",
+        "zstd_installed.tar",
+        "ncurses_final_installed.tar",
+        "readline_installed.tar",
+        "bash_installed.tar",
+    ],
+    outs = ["bash_final_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location mpc_installed.tar)
+        extract_dependency $(location mpfr_installed.tar)
+        extract_dependency $(location gmp_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location zstd_installed.tar)
+        extract_dependency $(location ncurses_final_installed.tar)
+        extract_dependency $(location readline_installed.tar)
+
+        extract_source $(location @bash_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr             \
+                        --without-bash-malloc     \
+                        --with-installed-readline \
+                        bash_cv_strtold_broken=no \
+                        --docdir=/usr/share/doc/bash-{bash_version}
+            make
+
+            # Deviation: Do not run the tests, they should be run as tester user, which is not possible with the current sandboxing
+
+            make install
+            ln -sv bash /usr/bin/sh
+        "
+
+        # Remove files other than the ones installed by bash
+        cd $$START_DIR
+        tar tf $(location bash_installed.tar) | grep -v '/$$' > files_to_keep.txt
+        grep -v -f files_to_keep.txt extracted_files.txt > extracted_files.txt.tmp
+        mv extracted_files.txt.tmp extracted_files.txt
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        bash_version = BASH_VERSION,
+    ),
 )
