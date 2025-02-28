@@ -1,4 +1,33 @@
-load("//:versions.bzl", "ACL_VERSION", "ATTR_VERSION", "BASH_VERSION", "BISON_VERSION", "DEJAGNU_VERSION", "EXPAT_VERSION", "FLEX_VERSION", "GCC_VERSION", "GETTEXT_VERSION", "GLIBC_VERSION", "GMP_VERSION", "GPERF_VERSION", "MPC_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "SED_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
+load(
+    "//:versions.bzl",
+    "ACL_VERSION",
+    "ATTR_VERSION",
+    "AUTOMAKE_VERSION",
+    "BASH_VERSION",
+    "BISON_VERSION",
+    "DEJAGNU_VERSION",
+    "EXPAT_VERSION",
+    "FLEX_VERSION",
+    "GCC_VERSION",
+    "GETTEXT_VERSION",
+    "GLIBC_VERSION",
+    "GMP_VERSION",
+    "GPERF_VERSION",
+    "IPROUTE2_VERSION",
+    "KBD_VERSION",
+    "LINUX_KERNEL_VERSION",
+    "MPC_VERSION",
+    "MPFR_VERSION",
+    "OPENSSL_VERSION",
+    "PERL_VERSION",
+    "PKGCONF_VERSION",
+    "PROCPS_VERSION",
+    "READLINE_VERSION",
+    "SED_VERSION",
+    "UTIL_LINUX_VERSION",
+    "VIM_VERSION",
+    "XZ_VERSION",
+)
 
 # Setup environment and provide "package-manager" functions
 COMMON_SCRIPT = """
@@ -3159,4 +3188,763 @@ genrule(
     """.format(
         expat_version = EXPAT_VERSION,
     ),
+)
+
+genrule(
+    name = "build_autoconf",
+    srcs = [
+        "@autoconf_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "perl_installed.tar",
+        "m4_final_installed.tar",
+    ],
+    outs = ["autoconf_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location perl_installed.tar)
+        extract_dependency $(location m4_final_installed.tar)
+
+        extract_source $(location @autoconf_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr
+            make
+            make check
+            make install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
+
+genrule(
+    name = "build_automake",
+    srcs = [
+        "@automake_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "perl_installed.tar",
+        "autoconf_installed.tar",
+    ],
+    outs = ["automake_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location perl_installed.tar)
+        extract_dependency $(location autoconf_installed.tar)
+
+        extract_source $(location @automake_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr --docdir=/usr/share/doc/automake-{automake_version}
+            make
+            make -j1 check
+            make install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        automake_version = AUTOMAKE_VERSION,
+    ),
+)
+
+genrule(
+    name = "build_openssl",
+    srcs = [
+        "@openssl_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "zlib_installed.tar",
+    ],
+    outs = ["openssl_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+
+        extract_source $(location @openssl_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./config --prefix=/usr         \\
+                    --openssldir=/etc/ssl \\
+                    --libdir=lib          \\
+                    shared                \\
+                    zlib-dynamic
+            make
+            make test
+            sed -i '/INSTALL_LIBS/s/libcrypto.a libssl.a//' Makefile
+            make MANSUFFIX=ssl install
+            mv -v /usr/share/doc/openssl /usr/share/doc/openssl-{openssl_version}
+            cp -vfr doc/* /usr/share/doc/openssl-{openssl_version}
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        openssl_version = OPENSSL_VERSION,
+    ),
+)
+
+genrule(
+    name = "build_kmod",
+    srcs = [
+        "@kmod_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "zlib_installed.tar",
+        "openssl_installed.tar",
+    ],
+    outs = ["kmod_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location openssl_installed.tar)
+
+        extract_source $(location @kmod_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr          \\
+                        --sysconfdir=/etc      \\
+                        --with-openssl         \\
+                        --with-xz              \\
+                        --with-zlib
+            make
+            make install
+
+            for target in depmod insmod modinfo modprobe rmmod; do
+                ln -sfv ../bin/kmod /usr/sbin/$target
+            done
+
+            ln -sfv kmod /usr/bin/lsmod
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
+
+genrule(
+    name = "build_libelf",
+    srcs = [
+        "@elfutils_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "zlib_installed.tar",
+    ],
+    outs = ["libelf_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+
+        extract_source $(location @elfutils_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr                        \\
+                        --disable-debuginfod                 \\
+                        --enable-libdebuginfod=dummy
+            make
+            make -C libelf install
+            install -vm644 config/libelf.pc /usr/lib/pkgconfig
+            rm /usr/lib/libelf.a
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
+
+genrule(
+    name = "build_libffi",
+    srcs = [
+        "@libffi_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+    ],
+    outs = ["libffi_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+
+        extract_source $(location @libffi_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr          \\
+                        --disable-static       \\
+                        --with-gcc-arch=native
+            make
+            make check
+            make install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
+
+genrule(
+    name = "build_procps",
+    srcs = [
+        "@procps_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "ncurses_final_installed.tar",
+    ],
+    outs = ["procps_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location ncurses_final_installed.tar)
+
+        extract_source $(location @procps_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr                           \\
+                        --docdir=/usr/share/doc/procps-ng-{procps_version} \\
+                        --disable-static                       \\
+                        --disable-kill
+            make
+            make check
+            make install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        procps_version = PROCPS_VERSION,
+    ),
+)
+
+genrule(
+    name = "build_e2fsprogs",
+    srcs = [
+        "@e2fsprogs_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "util_linux_installed.tar",
+    ],
+    outs = ["e2fsprogs_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location util_linux_installed.tar)
+
+        extract_source $(location @e2fsprogs_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            mkdir -v build
+            cd build
+            ../configure --prefix=/usr           \\
+                         --sysconfdir=/etc       \\
+                         --enable-elf-shlibs     \\
+                         --disable-libblkid      \\
+                         --disable-libuuid       \\
+                         --disable-uuidd         \\
+                         --disable-fsck
+            make
+            make check
+            make install
+            rm -fv /usr/lib/{{libcom_err,libe2p,libext2fs,libss}.a}
+            gunzip -v /usr/share/info/libext2fs.info.gz
+            install-info --dir-file=/usr/share/info/dir /usr/share/info/libext2fs.info
+            makeinfo -o      doc/com_err.info ../lib/et/com_err.texinfo
+            install -v -m644 doc/com_err.info /usr/share/info
+            install-info --dir-file=/usr/share/info/dir /usr/share/info/com_err.info
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
+
+genrule(
+    name = "build_iproute2",
+    srcs = [
+        "@iproute2_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "zlib_installed.tar",
+        "libelf_installed.tar",
+    ],
+    outs = ["iproute2_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location libelf_installed.tar)
+
+        extract_source $(location @iproute2_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            sed -i /ARPD/d Makefile
+            rm -fv man/man8/arpd.8
+            
+            make NETNS_RUN_DIR=/run/netns
+            make SBINDIR=/usr/sbin install
+            
+            mkdir -pv             /usr/share/doc/iproute2-{iproute2_version}
+            cp -v COPYING README* /usr/share/doc/iproute2-{iproute2_version}
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        iproute2_version = IPROUTE2_VERSION,
+    ),
+)
+
+genrule(
+    name = "build_kbd",
+    srcs = [
+        "@kbd_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+    ],
+    outs = ["kbd_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+
+        extract_source $(location @kbd_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            patch -Np1 -i kbd-{kbd_version}-backspace-1.patch
+            sed -i '/RESIZECONS_PROGS=/s/yes/no/' configure
+            sed -i 's/resizecons.8 //' docs/man/man8/Makefile.in
+            
+            ./configure --prefix=/usr --disable-vlock
+            make
+            make check
+            make install
+            
+            mkdir -pv /usr/share/doc/kbd-{kbd_version}
+            cp -R -v docs/doc/* /usr/share/doc/kbd-{kbd_version}
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        kbd_version = KBD_VERSION,
+    ),
+)
+
+genrule(
+    name = "build_less",
+    srcs = [
+        "@less_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "ncurses_final_installed.tar",
+    ],
+    outs = ["less_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location ncurses_final_installed.tar)
+
+        extract_source $(location @less_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr --sysconfdir=/etc
+            make
+            make install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
+
+genrule(
+    name = "build_vim",
+    srcs = [
+        "@vim_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "ncurses_final_installed.tar",
+    ],
+    outs = ["vim_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location ncurses_final_installed.tar)
+
+        extract_source $(location @vim_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            echo '#define SYS_VIMRC_FILE \"/etc/vimrc\"' >> src/feature.h
+            
+            ./configure --prefix=/usr
+            make
+            make install
+            
+            ln -sv vim /usr/bin/vi
+            for L in /usr/share/man/{{,*/}}man1/vim.1; do
+                ln -sv vim.1 \\$(dirname \\$L)/vi.1
+            done
+            
+            ln -sv ../vim/vim90/doc /usr/share/doc/vim-{vim_version}
+            
+            cat > /etc/vimrc << 'EOF'
+\" Begin /etc/vimrc
+
+\" Ensure defaults are set before customizing settings, not after
+source \\$VIMRUNTIME/defaults.vim
+let skip_defaults_vim=1
+
+set nocompatible
+set backspace=2
+set mouse=
+syntax on
+if (&term == \"xterm\") || (&term == \"putty\")
+  set background=dark
+endif
+
+\" End /etc/vimrc
+EOF
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        vim_version = VIM_VERSION,
+    ),
+)
+
+genrule(
+    name = "build_systemd",
+    srcs = [
+        "@systemd_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "pkgconf_installed.tar",
+        "gperf_installed.tar",
+        "libcap_installed.tar",
+        "acl_installed.tar",
+        "expat_installed.tar",
+        "kmod_installed.tar",
+        "util_linux_installed.tar",
+    ],
+    outs = ["systemd_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location pkgconf_installed.tar)
+        extract_dependency $(location gperf_installed.tar)
+        extract_dependency $(location libcap_installed.tar)
+        extract_dependency $(location acl_installed.tar)
+        extract_dependency $(location expat_installed.tar)
+        extract_dependency $(location kmod_installed.tar)
+        extract_dependency $(location util_linux_installed.tar)
+
+        extract_source $(location @systemd_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            sed -i -e 's/GROUP=\"render\"/GROUP=\"video\"/' \\
+                   -e 's/GROUP=\"sgx\", //' rules.d/50-udev-default.rules.in
+
+            mkdir -p build
+            cd build
+            meson setup \\
+                  --prefix=/usr                 \\
+                  --buildtype=release           \\
+                  -Ddefault-dnssec=no           \\
+                  -Dfirstboot=false             \\
+                  -Dinstall-tests=false         \\
+                  -Dldconfig=false              \\
+                  -Dsysusers=false              \\
+                  -Drpmmacrosdir=no             \\
+                  -Dhomed=disabled              \\
+                  -Duserdb=false                \\
+                  -Dman=disabled                \\
+                  -Dmode=release                \\
+                  -Dpamconfdir=no               \\
+                  ..
+            ninja
+            ninja install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
+)
+
+genrule(
+    name = "build_kernel",
+    srcs = [
+        "@linux_kernel_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "libelf_installed.tar",
+        "ncurses_final_installed.tar",
+        "openssl_installed.tar",
+        "kmod_installed.tar",
+    ],
+    outs = ["kernel_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location libelf_installed.tar)
+        extract_dependency $(location ncurses_final_installed.tar)
+        extract_dependency $(location openssl_installed.tar)
+        extract_dependency $(location kmod_installed.tar)
+
+        extract_source $(location @linux_kernel_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            make mrproper
+            make defconfig
+            make -j\\$(nproc)
+            make modules_install
+            cp -v arch/x86/boot/bzImage /boot/vmlinuz-{linux_kernel_version}-lfs
+            cp -v System.map /boot/System.map-{linux_kernel_version}
+            cp -v .config /boot/config-{linux_kernel_version}
+            install -d /usr/share/doc/linux-{linux_kernel_version}
+            cp -r Documentation/* /usr/share/doc/linux-{linux_kernel_version}
+            
+            # Create /etc/fstab
+            cat > /etc/fstab << 'EOF'
+# Begin /etc/fstab
+
+# file system  mount-point  type   options          dump  fsck
+#                                                         order
+
+/dev/sda1      /            ext4   defaults         1     1
+proc           /proc        proc   nosuid,noexec,nodev 0  0
+sysfs          /sys         sysfs  nosuid,noexec,nodev 0  0
+devpts         /dev/pts     devpts gid=5,mode=620   0     0
+tmpfs          /run         tmpfs  defaults         0     0
+devtmpfs       /dev         devtmpfs mode=0755,nosuid 0   0
+
+# End /etc/fstab
+EOF
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        linux_kernel_version = LINUX_KERNEL_VERSION,
+    ),
+)
+
+genrule(
+    name = "build_grub",
+    srcs = [
+        "@grub_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "bison_final_installed.tar",
+        "flex_installed.tar",
+        "ncurses_final_installed.tar",
+    ],
+    outs = ["grub_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location bison_final_installed.tar)
+        extract_dependency $(location flex_installed.tar)
+        extract_dependency $(location ncurses_final_installed.tar)
+
+        extract_source $(location @grub_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr          \\
+                        --sysconfdir=/etc      \\
+                        --disable-efiemu       \\
+                        --enable-grub-mkfont   \\
+                        --with-platform=pc     \\
+                        --target=i386          \\
+                        --disable-werror
+            make
+            make install
+            
+            # Create basic GRUB configuration
+            cat > /boot/grub/grub.cfg << 'EOF'
+# Begin /boot/grub/grub.cfg
+
+set default=0
+set timeout=5
+
+insmod ext2
+set root=(hd0,1)
+
+menuentry 'Linux From Scratch' {{
+    linux   /boot/vmlinuz-{linux_kernel_version}-lfs root=/dev/sda1 ro
+}}
+
+EOF
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """.format(
+        linux_kernel_version = LINUX_KERNEL_VERSION,
+    ),
+)
+
+genrule(
+    name = "build_final_system",
+    srcs = [
+        "gcc_final_installed.tar",
+        "binutils_final_installed.tar",
+        "glibc_pass2_installed.tar",
+        "attr_installed.tar",
+        "acl_installed.tar",
+        "libcap_installed.tar",
+        "shadow_installed.tar",
+        "systemd_installed.tar",
+        "procps_installed.tar",
+        "e2fsprogs_installed.tar",
+        "iproute2_installed.tar",
+        "kbd_installed.tar",
+        "less_installed.tar",
+        "vim_installed.tar",
+        "kernel_installed.tar",
+        "grub_installed.tar",
+    ],
+    outs = ["final_system.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        for dep in $(SRCS); do
+            extract_dependency $$dep
+        done
+        
+        run_bash_script_in_lfs "
+            # Create final essential config files
+            
+            # /etc/hostname
+            echo 'lfs' > /etc/hostname
+
+            # /etc/hosts
+            cat > /etc/hosts << 'EOF'
+# Begin /etc/hosts
+
+127.0.0.1 localhost.localdomain localhost
+::1       localhost ip6-localhost ip6-loopback
+ff02::1   ip6-allnodes
+ff02::2   ip6-allrouters
+
+# End /etc/hosts
+EOF
+
+            # Create /etc/inputrc
+            cat > /etc/inputrc << 'EOF'
+# Begin /etc/inputrc
+# Modified by Chris Lynn <roryo@roryo.dynup.net>
+
+# Allow the command prompt to wrap to the next line
+set horizontal-scroll-mode Off
+
+# Enable 8bit input
+set meta-flag On
+set input-meta On
+
+# Turns off 8th bit stripping
+set convert-meta Off
+
+# Keep the 8th bit for display
+set output-meta On
+
+# none, visible or audible
+set bell-style none
+
+# All of the following map the escape sequence of the value
+# contained in the 1st argument to the readline specific functions
+'\\e[1~': beginning-of-line
+'\\e[4~': end-of-line
+'\\e[5~': beginning-of-history
+'\\e[6~': end-of-history
+'\\e[3~': delete-char
+'\\e[2~': quoted-insert
+
+# End /etc/inputrc
+EOF
+
+            # Create /etc/shells
+            cat > /etc/shells << 'EOF'
+# Begin /etc/shells
+
+/bin/sh
+/bin/bash
+
+# End /etc/shells
+EOF
+
+            # Create /etc/profile
+            cat > /etc/profile << 'EOF'
+# Begin /etc/profile
+
+export LANG=C.UTF-8
+
+# End /etc/profile
+EOF
+        "
+
+        cd "$$START_DIR"
+        tar cf "$@" -C "$$LFS" .
+    """,
 )
