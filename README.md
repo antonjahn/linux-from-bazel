@@ -6,6 +6,27 @@ We want to build a Linux system from Scratch as described in the Linux From Scra
 
 Bazel is a highly scalable build system that is typically used for large, complex builds. Using Bazel to manage the steps in LFS can make things reproducible and more efficient by using caching, parallelism, and dependency management.
 
+## How to use
+
+This repo contains a .bazelversion, recommending bazelisk as the bazel wrapper.
+Use bazel query to see the available targets. Check the doc/bigpicture.svg for an overview.
+
+```bash
+bazel query //...
+```
+
+An interesting first target is the initial root filesystem, built with:
+
+```bash
+bazel build //:image_initial_rootfs
+```
+
+if that succeeds, you can enter the sandbox and inspect the filesystem with:
+
+```bash
+ bazel run //:run_initial_rootfs
+```
+
 ## Backlog
 - Refactor build target naming and tarball naming
   - consider introducing temporary and removing final in target and tarball names
