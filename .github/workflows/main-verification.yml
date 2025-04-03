@@ -29,3 +29,8 @@ jobs:
           push: always
           runCmd: |
             scripts/version-check.sh
+            scripts/bigpicture.sh
+            if [[ $(git diff --stat doc) != '' ]]; then
+              echo "Error: Changes in 'doc' directory. Update the documentation by running 'scripts/bigpicture.sh' and commit the changes."
+              exit 1
+            fi
