@@ -428,5 +428,8 @@ http_file(
 http_file(
     name = "expat_src.tar",
     sha256 = EXPAT_SHA256,
-    urls = ["https://prdownloads.sourceforge.net/expat/expat-{0}.tar.xz".format(EXPAT_VERSION)],
+    urls = [
+        "https://prdownloads.sourceforge.net/expat/expat-{0}.tar.xz".format(EXPAT_VERSION),
+        "https://github.com/libexpat/libexpat/releases/download/R_{1}/expat-{0}.tar.xz".format(EXPAT_VERSION, EXPAT_VERSION.replace(".", "_")),
+        ],
 )
