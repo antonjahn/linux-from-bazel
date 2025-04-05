@@ -11,6 +11,7 @@ export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
 export PATH="$$LFS/tools/bin:$$PATH"
 mkdir -p "$$LFS"
 mkdir -p "$$WORK_DIR"
+export TAR="tar --sort=name --mtime='@0' --owner=0 --group=0 --numeric-owner"
 
 EXTRACTED_FILES="$$START_DIR/extracted_files.txt"
 
@@ -65,7 +66,7 @@ genrule(
         make install
 
         cd "$$START_DIR"
-        tar --mtime='2023-01-01 00:00:00' -cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         common_script = COMMON_SCRIPT,
     ),
@@ -131,7 +132,7 @@ genrule(
         rm -rf /tmp/src
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         glibc_version = GLIBC_VERSION,
     ),
@@ -165,7 +166,7 @@ genrule(
         cp -rv usr/include "$$LFS/usr"
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -225,7 +226,7 @@ genrule(
         cleanup_extracted_dependencies
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         common_script = COMMON_SCRIPT,
     ),
@@ -296,7 +297,7 @@ genrule(
         cleanup_extracted_dependencies
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         gcc_version = GCC_VERSION,
     ),
@@ -332,7 +333,7 @@ genrule(
         cleanup_extracted_dependencies
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         common_script = COMMON_SCRIPT,
     ),
@@ -392,7 +393,7 @@ genrule(
         cleanup_extracted_dependencies
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         common_script = COMMON_SCRIPT,
     ),
@@ -466,7 +467,7 @@ genrule(
         cleanup_extracted_dependencies
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         common_script = COMMON_SCRIPT,
     ),
@@ -518,7 +519,7 @@ genrule(
         cleanup_extracted_dependencies
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         common_script = COMMON_SCRIPT,
     ),
@@ -554,7 +555,7 @@ genrule(
         cleanup_extracted_dependencies
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         common_script = COMMON_SCRIPT,
     ),
@@ -603,7 +604,7 @@ genrule(
         cleanup_extracted_dependencies
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         common_script = COMMON_SCRIPT,
     ),
@@ -639,7 +640,7 @@ genrule(
         cleanup_extracted_dependencies
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         common_script = COMMON_SCRIPT,
     ),
@@ -678,7 +679,7 @@ genrule(
         cleanup_extracted_dependencies
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         common_script = COMMON_SCRIPT,
     ),
@@ -714,7 +715,7 @@ genrule(
         cleanup_extracted_dependencies
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         common_script = COMMON_SCRIPT,
     ),
@@ -750,7 +751,7 @@ genrule(
         cleanup_extracted_dependencies
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         common_script = COMMON_SCRIPT,
     ),
@@ -787,7 +788,7 @@ genrule(
         cleanup_extracted_dependencies
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         common_script = COMMON_SCRIPT,
     ),
@@ -823,7 +824,7 @@ genrule(
         cleanup_extracted_dependencies
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         common_script = COMMON_SCRIPT,
     ),
@@ -1064,7 +1065,7 @@ genrule(
         cleanup_extracted_dependencies
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1152,7 +1153,7 @@ genrule(
         "
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1190,7 +1191,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1217,7 +1218,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         bison_version = BISON_VERSION,
     ),
@@ -1255,7 +1256,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         perl_version = PERL_VERSION,
     ),
@@ -1284,7 +1285,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1313,7 +1314,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1359,7 +1360,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         util_linux_version = UTIL_LINUX_VERSION,
     ),
@@ -1387,7 +1388,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1412,7 +1413,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1493,7 +1494,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1523,7 +1524,7 @@ genrule(
         rm -rf $$LFS/tools
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1591,7 +1592,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1632,7 +1633,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1668,7 +1669,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         xz_version = XZ_VERSION,
     ),
@@ -1697,7 +1698,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1725,7 +1726,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1759,7 +1760,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1795,7 +1796,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         readline_version = READLINE_VERSION,
     ),
@@ -1832,7 +1833,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1860,7 +1861,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1891,7 +1892,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         flex_version = FLEX_VERSION,
     ),
@@ -1951,7 +1952,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -1993,7 +1994,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -2026,7 +2027,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         dejagnu_version = DEJAGNU_VERSION,
     ),
@@ -2060,7 +2061,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         pkgconf_version = PKGCONF_VERSION,
     ),
@@ -2116,7 +2117,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -2179,7 +2180,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         gmp_version = GMP_VERSION,
     ),
@@ -2220,7 +2221,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         mpfr_version = MPFR_VERSION,
     ),
@@ -2262,7 +2263,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         mpc_version = MPC_VERSION,
     ),
@@ -2295,7 +2296,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         attr_version = ATTR_VERSION,
     ),
@@ -2328,7 +2329,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         acl_version = ACL_VERSION,
     ),
@@ -2359,7 +2360,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -2391,7 +2392,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -2488,7 +2489,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -2588,7 +2589,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -2683,7 +2684,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
     tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/ncurses.html"],
 )
@@ -2734,7 +2735,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         sed_version = SED_VERSION,
     ),
@@ -2777,7 +2778,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
     tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/psmisc.html"],
 )
@@ -2823,7 +2824,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         gettext_version = GETTEXT_VERSION,
     ),
@@ -2875,7 +2876,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         bison_version = BISON_VERSION,
     ),
@@ -2926,7 +2927,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
     tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/grep.html"],
 )
@@ -2985,7 +2986,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         bash_version = BASH_VERSION,
     ),
@@ -3030,7 +3031,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -3072,7 +3073,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """,
 )
 
@@ -3112,7 +3113,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         gperf_version = GPERF_VERSION,
     ),
@@ -3155,7 +3156,7 @@ genrule(
         cleanup_source
 
         cd "$$START_DIR"
-        tar cf "$@" -C "$$LFS" .
+        $$TAR -cf "$@" -C "$$LFS" .
     """.format(
         expat_version = EXPAT_VERSION,
     ),
