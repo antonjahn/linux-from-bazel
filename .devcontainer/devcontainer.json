@@ -7,8 +7,8 @@
     "features": {
         "ghcr.io/devcontainers-community/features/bazel": "1.1.0"
     },
-    // Use 'forwardPorts' to make a list of ports inside the container available locally.
-    // "forwardPorts": [],
+    // privileged is required for Bazel to run in the container.
+    "runArgs": ["--privileged"],
     "postCreateCommand": ".devcontainer/post_create.sh && scripts/version-check.sh",
     "customizations": {
         "vscode": {
