@@ -33,6 +33,5 @@ jobs:
             exit 1
           fi
       - name: Build
-        continue-on-error: true
         run: |
-          bazel build -j 1 //:image_temporary_rootfs
+          bazel build --keep_going -j 1 //:image_temporary_rootfs
