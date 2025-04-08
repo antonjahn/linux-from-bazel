@@ -1,6 +1,67 @@
-###############################################################################
-# Bazel now uses Bzlmod by default to manage external dependencies.
-# Please consider migrating your external dependencies from WORKSPACE to MODULE.bazel.
-#
-# For more details, please check https://github.com/bazelbuild/bazel/issues/18958
-###############################################################################
+"""Linux from Bazel - Module file, loads the repositories defined in deps.bzl."""
+
+module(
+    name = "linux_from_bazel",
+    version = "0.1.0",
+)
+
+# Load the function that defines our http_file repositories
+lfs_sources = use_extension("//:deps.bzl", "fetch_lfs_sources")
+
+# Make the repositories defined in fetch_lfs_sources available
+use_repo(
+    lfs_sources,
+    "acl_src.tar",
+    "attr_src.tar",
+    "bash_src.tar",
+    "bc_src.tar",
+    "binutils_src.tar",
+    "bison_src.tar",
+    "bzip2_src.tar",
+    "coreutils_src.tar",
+    "dejagnu_src.tar",
+    "diffutils_src.tar",
+    "expat_src.tar",
+    "expect_gcc14_patch",
+    "expect_src.tar",
+    "file_src.tar",
+    "findutils_src.tar",
+    "flex_src.tar",
+    "gawk_src.tar",
+    "gcc_src.tar",
+    "gdbm_src.tar",
+    "gettext_src.tar",
+    "glibc_fsh_patch",
+    "glibc_src.tar",
+    "gmp_src.tar",
+    "gperf_src.tar",
+    "grep_src.tar",
+    "gzip_src.tar",
+    "iana_etc_src.tar",
+    "libcap_src.tar",
+    "libtool_src.tar",
+    "libxcrypt_src.tar",
+    "linux_kernel_src.tar",
+    "lz4_src.tar",
+    "m4_src.tar",
+    "make_src.tar",
+    "man_pages_src.tar",
+    "mpc_src.tar",
+    "mpfr_src.tar",
+    "ncurses_src.tar",
+    "patch_src.tar",
+    "perl_src.tar",
+    "pkgconf_src.tar",
+    "psmisc_src.tar",
+    "python_src.tar",
+    "readline_src.tar",
+    "sed_src.tar",
+    "shadow_src.tar",
+    "tar_src.tar",
+    "tcl_src.tar",
+    "texinfo_src.tar",
+    "util_linux_src.tar",
+    "xz_src.tar",
+    "zlib_src.tar",
+    "zstd_src.tar",
+)

@@ -61,6 +61,556 @@
   },
   "selectedYankedVersions": {},
   "moduleExtensions": {
+    "//:deps.bzl%fetch_lfs_sources": {
+      "general": {
+        "bzlTransitiveDigest": "kdx6zxFHGyvGhmpxABO4C4T4hZbJ/F/5frolhhT9xwc=",
+        "usagesDigest": "8KVGcCKAx4FXOGHTcTzdAGXiObW6Ride6NhFDssPDVs=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "binutils_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "13f74202a3c4c51118b797a39ea4200d3f6cfbe224da6d1d95bb938480132dfd",
+              "urls": [
+                "https://sourceware.org/pub/binutils/releases/binutils-2.43.1.tar.xz",
+                "https://ftp.gnu.org/gnu/binutils/binutils-2.43.1.tar.xz"
+              ]
+            }
+          },
+          "gcc_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "a7b39bc69cbf9e25826c5a60ab26477001f7c08d85cec04bc0e29cabed6f3cc9",
+              "urls": [
+                "https://ftp.gnu.org/gnu/gcc/gcc-14.2.0/gcc-14.2.0.tar.xz"
+              ]
+            }
+          },
+          "linux_kernel_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "30909eb2e0434dce97a93cd97ed0dfab7688a124bc3ebc3ecf6c776de09ccc0b",
+              "urls": [
+                "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.10.5.tar.xz"
+              ]
+            }
+          },
+          "glibc_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "19a890175e9263d748f627993de6f4b1af9cd21e03f080e4bfb3a1fac10205a2",
+              "urls": [
+                "https://ftp.gnu.org/gnu/glibc/glibc-2.40.tar.xz"
+              ]
+            }
+          },
+          "glibc_fsh_patch": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "643552db030e2f2d7ffde4f558e0f5f83d3fabf34a2e0e56ebdb49750ac27b0d",
+              "urls": [
+                "https://www.linuxfromscratch.org/patches/lfs/12.2/glibc-2.40-fhs-1.patch"
+              ]
+            }
+          },
+          "m4_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "63aede5c6d33b6d9b13511cd0be2cac046f2e70fd0a07aa9573a04a82783af96",
+              "urls": [
+                "https://ftp.gnu.org/gnu/m4/m4-1.4.19.tar.xz"
+              ]
+            }
+          },
+          "ncurses_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "136d91bc269a9a5785e5f9e980bc76ab57428f604ce3e5a5a90cebc767971cc6",
+              "urls": [
+                "https://ftp.gnu.org/gnu/ncurses/ncurses-6.5.tar.gz"
+              ]
+            }
+          },
+          "bash_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "d3ef80d2b67d8cbbe4d3265c63a72c46f9b278ead6e0e06d61801b58f23f50b5",
+              "urls": [
+                "https://ftp.gnu.org/gnu/bash/bash-5.2.32.tar.gz"
+              ]
+            }
+          },
+          "coreutils_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "cd328edeac92f6a665de9f323c93b712af1858bc2e0d88f3f7100469470a1b8a",
+              "urls": [
+                "https://ftp.gnu.org/gnu/coreutils/coreutils-9.5.tar.xz"
+              ]
+            }
+          },
+          "diffutils_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "90e5e93cc724e4ebe12ede80df1634063c7a855692685919bfe60b556c9bd09e",
+              "urls": [
+                "https://ftp.gnu.org/gnu/diffutils/diffutils-3.10.tar.xz"
+              ]
+            }
+          },
+          "file_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "fc97f51029bb0e2c9f4e3bffefdaf678f0e039ee872b9de5c002a6d09c784d82",
+              "urls": [
+                "https://astron.com/pub/file/file-5.45.tar.gz"
+              ]
+            }
+          },
+          "findutils_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "1387e0b67ff247d2abde998f90dfbf70c1491391a59ddfecb8ae698789f0a4f5",
+              "urls": [
+                "https://ftp.gnu.org/gnu/findutils/findutils-4.10.0.tar.xz"
+              ]
+            }
+          },
+          "gawk_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "ca9c16d3d11d0ff8c69d79dc0b47267e1329a69b39b799895604ed447d3ca90b",
+              "urls": [
+                "https://ftp.gnu.org/gnu/gawk/gawk-5.3.0.tar.xz"
+              ]
+            }
+          },
+          "grep_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "1db2aedde89d0dea42b16d9528f894c8d15dae4e190b59aecc78f5a951276eab",
+              "urls": [
+                "https://ftp.gnu.org/gnu/grep/grep-3.11.tar.xz"
+              ]
+            }
+          },
+          "gzip_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "7454eb6935db17c6655576c2e1b0fabefd38b4d0936e0f87f48cd062ce91a057",
+              "urls": [
+                "https://ftp.gnu.org/gnu/gzip/gzip-1.13.tar.xz"
+              ]
+            }
+          },
+          "make_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "dd16fb1d67bfab79a72f5e8390735c49e3e8e70b4945a15ab1f81ddb78658fb3",
+              "urls": [
+                "https://ftp.gnu.org/gnu/make/make-4.4.1.tar.gz"
+              ]
+            }
+          },
+          "patch_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "ac610bda97abe0d9f6b7c963255a11dcb196c25e337c61f94e4778d632f1d8fd",
+              "urls": [
+                "https://ftp.gnu.org/gnu/patch/patch-2.7.6.tar.xz"
+              ]
+            }
+          },
+          "sed_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "6e226b732e1cd739464ad6862bd1a1aba42d7982922da7a53519631d24975181",
+              "urls": [
+                "https://ftp.gnu.org/gnu/sed/sed-4.9.tar.xz"
+              ]
+            }
+          },
+          "tar_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "4d62ff37342ec7aed748535323930c7cf94acf71c3591882b26a7ea50f3edc16",
+              "urls": [
+                "https://ftp.gnu.org/gnu/tar/tar-1.35.tar.xz"
+              ]
+            }
+          },
+          "xz_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "a9db3bb3d64e248a0fae963f8fb6ba851a26ba1822e504dc0efd18a80c626caf",
+              "urls": [
+                "https://github.com//tukaani-project/xz/releases/download/v5.6.2/xz-5.6.2.tar.xz"
+              ]
+            }
+          },
+          "gettext_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "fe10c37353213d78a5b83d48af231e005c4da84db5ce88037d88355938259640",
+              "urls": [
+                "https://ftp.gnu.org/gnu/gettext/gettext-0.22.5.tar.xz"
+              ]
+            }
+          },
+          "bison_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "9bba0214ccf7f1079c5d59210045227bcf619519840ebfa80cd3849cff5a5bf2",
+              "urls": [
+                "https://ftp.gnu.org/gnu/bison/bison-3.8.2.tar.xz"
+              ]
+            }
+          },
+          "perl_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "d5325300ad267624cb0b7d512cfdfcd74fa7fe00c455c5b51a6bd53e5e199ef9",
+              "urls": [
+                "https://www.cpan.org/src/5.0/perl-5.40.0.tar.xz"
+              ]
+            }
+          },
+          "python_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "fa8a2e12c5e620b09f53e65bcd87550d2e5a1e2e04bf8ba991dcc55113876397",
+              "urls": [
+                "https://www.python.org/ftp/python/3.12.5/Python-3.12.5.tar.xz"
+              ]
+            }
+          },
+          "texinfo_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "deeec9f19f159e046fdf8ad22231981806dac332cc372f1c763504ad82b30953",
+              "urls": [
+                "https://ftp.gnu.org/gnu/texinfo/texinfo-7.1.tar.xz"
+              ]
+            }
+          },
+          "util_linux_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "d78b37a66f5922d70edf3bdfb01a6b33d34ed3c3cafd6628203b2a2b67c8e8b3",
+              "urls": [
+                "https://www.kernel.org/pub/linux/utils/util-linux/v2.40/util-linux-2.40.2.tar.xz"
+              ]
+            }
+          },
+          "man_pages_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "e23cbac29f110ba571f0da8523e79d373691466ed7f2a31301721817d34530bd",
+              "urls": [
+                "https://www.kernel.org/pub/linux/docs/man-pages/man-pages-6.9.1.tar.xz"
+              ]
+            }
+          },
+          "iana_etc_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "672dbe1ba52b889a46dc07ee3876664ed601983239f82d729d02a002475a5b66",
+              "urls": [
+                "https://github.com/Mic92/iana-etc/releases/download/20240806/iana-etc-20240806.tar.gz"
+              ]
+            }
+          },
+          "zlib_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+              "urls": [
+                "https://zlib.net/fossils/zlib-1.3.1.tar.gz"
+              ]
+            }
+          },
+          "bzip2_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269",
+              "urls": [
+                "https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz"
+              ]
+            }
+          },
+          "lz4_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "537512904744b35e232912055ccf8ec66d768639ff3abe5788d90d792ec5f48b",
+              "urls": [
+                "https://github.com/lz4/lz4/releases/download/v1.10.0/lz4-1.10.0.tar.gz"
+              ]
+            }
+          },
+          "zstd_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "8c29e06cf42aacc1eafc4077ae2ec6c6fcb96a626157e0593d5e82a34fd403c1",
+              "urls": [
+                "https://github.com/facebook/zstd/releases/download/v1.5.6/zstd-1.5.6.tar.gz"
+              ]
+            }
+          },
+          "readline_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "0e5be4d2937e8bd9b7cd60d46721ce79f88a33415dd68c2d738fb5924638f656",
+              "urls": [
+                "https://ftp.gnu.org/gnu/readline/readline-8.2.13.tar.gz"
+              ]
+            }
+          },
+          "bc_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "828f390c2a552cadbc8c8ad5fde6eeaee398dc8d59d706559158330f3629ce35",
+              "urls": [
+                "https://github.com/gavinhoward/bc/releases/download/6.7.6/bc-6.7.6.tar.xz"
+              ]
+            }
+          },
+          "flex_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "e87aae032bf07c26f85ac0ed3250998c37621d95f8bd748b31f15b33c45ee995",
+              "urls": [
+                "https://github.com/westes/flex/releases/download/v2.6.4/flex-2.6.4.tar.gz"
+              ]
+            }
+          },
+          "tcl_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "5880225babf7954c58d4fb0f5cf6279104ce1cd6aa9b71e9a6322540e1c4de66",
+              "urls": [
+                "https://prdownloads.sourceforge.net/tcl/tcl8.6.14-src.tar.gz"
+              ]
+            }
+          },
+          "expect_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "49a7da83b0bdd9f46d04a04deec19c7767bb9a323e40c4781f89caf760b92c34",
+              "urls": [
+                "https://prdownloads.sourceforge.net/expect/expect5.45.4.tar.gz"
+              ]
+            }
+          },
+          "expect_gcc14_patch": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "517c0cdd5db949cdd99dfa38b7a6c3945e1524c50e3467028973298f2c76a92c",
+              "urls": [
+                "https://www.linuxfromscratch.org/patches/lfs/12.2/expect-5.45.4-gcc14-1.patch"
+              ]
+            }
+          },
+          "dejagnu_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "87daefacd7958b4a69f88c6856dbd1634261963c414079d0c371f589cd66a2e3",
+              "urls": [
+                "https://ftp.gnu.org/gnu/dejagnu/dejagnu-1.6.3.tar.gz"
+              ]
+            }
+          },
+          "pkgconf_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "3a9080ac51d03615e7c1910a0a2a8df08424892b5f13b0628a204d3fcce0ea8b",
+              "urls": [
+                "https://distfiles.ariadne.space/pkgconf/pkgconf-2.3.0.tar.xz"
+              ]
+            }
+          },
+          "gmp_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898",
+              "urls": [
+                "https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz"
+              ]
+            }
+          },
+          "mpfr_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "277807353a6726978996945af13e52829e3abd7a9a5b7fb2793894e18f1fcbb2",
+              "urls": [
+                "https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.1.tar.xz"
+              ]
+            }
+          },
+          "mpc_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "ab642492f5cf882b74aa0cb730cd410a81edcdbec895183ce930e706c1c759b8",
+              "urls": [
+                "https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz"
+              ]
+            }
+          },
+          "attr_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "39bf67452fa41d0948c2197601053f48b3d78a029389734332a6309a680c6c87",
+              "urls": [
+                "https://download.savannah.gnu.org/releases/attr/attr-2.5.2.tar.gz"
+              ]
+            }
+          },
+          "acl_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "97203a72cae99ab89a067fe2210c1cbf052bc492b479eca7d226d9830883b0bd",
+              "urls": [
+                "https://download.savannah.gnu.org/releases/acl/acl-2.3.2.tar.xz"
+              ]
+            }
+          },
+          "libcap_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "23a6ef8aadaf1e3e875f633bb2d116cfef8952dba7bc7c569b13458e1952b30f",
+              "urls": [
+                "https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-2.70.tar.xz"
+              ]
+            }
+          },
+          "libxcrypt_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "e5e1f4caee0a01de2aee26e3138807d6d3ca2b8e67287966d1fefd65e1fd8943",
+              "urls": [
+                "https://github.com/besser82/libxcrypt/releases/download/v4.4.36/libxcrypt-4.4.36.tar.xz"
+              ]
+            }
+          },
+          "shadow_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "b78e3921a95d53282a38e90628880624736bf6235e36eea50c50835f59a3530b",
+              "urls": [
+                "https://github.com/shadow-maint/shadow/releases/download/4.16.0/shadow-4.16.0.tar.xz"
+              ]
+            }
+          },
+          "psmisc_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "58c55d9c1402474065adae669511c191de374b0871eec781239ab400b907c327",
+              "urls": [
+                "https://prdownloads.sourceforge.net/psmisc/psmisc-23.7.tar.xz"
+              ]
+            }
+          },
+          "libtool_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "4f7f217f057ce655ff22559ad221a0fd8ef84ad1fc5fcb6990cecc333aa1635d",
+              "urls": [
+                "https://ftp.gnu.org/gnu/libtool/libtool-2.4.7.tar.xz"
+              ]
+            }
+          },
+          "gdbm_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "695e9827fdf763513f133910bc7e6cfdb9187943a4fec943e57449723d2b8dbf",
+              "urls": [
+                "https://ftp.gnu.org/gnu/gdbm/gdbm-1.24.tar.gz"
+              ]
+            }
+          },
+          "gperf_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "588546b945bba4b70b6a3a616e80b4ab466e3f33024a352fc2198112cdbb3ae2",
+              "urls": [
+                "https://ftp.gnu.org/gnu/gperf/gperf-3.1.tar.gz"
+              ]
+            }
+          },
+          "expat_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "ee14b4c5d8908b1bec37ad937607eab183d4d9806a08adee472c3c3121d27364",
+              "urls": [
+                "https://prdownloads.sourceforge.net/expat/expat-2.6.2.tar.xz",
+                "https://github.com/libexpat/libexpat/releases/download/R_2_6_2/expat-2.6.2.tar.xz"
+              ]
+            }
+          }
+        },
+        "recordedRepoMappingEntries": [
+          [
+            "",
+            "bazel_tools",
+            "bazel_tools"
+          ]
+        ]
+      }
+    },
     "@@apple_support~//crosstool:setup.bzl%apple_cc_configure_extension": {
       "general": {
         "bzlTransitiveDigest": "PjIds3feoYE8SGbbIq2SFTZy3zmxeO2tQevJZNDo7iY=",
