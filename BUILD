@@ -3255,3 +3255,64 @@ genrule(
     """,
     tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/less.html"],
 )
+
+genrule(
+    name = "build_perl_final",
+    srcs = [
+        "@perl_src.tar//file",
+        "perl_installed.tar",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "mpc_installed.tar",
+        "mpfr_installed.tar",
+        "gmp_installed.tar",
+        "zlib_installed.tar",
+        "zstd_installed.tar",
+    ],
+    outs = ["perl_final_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location mpc_installed.tar)
+        extract_dependency $(location mpfr_installed.tar)
+        extract_dependency $(location gmp_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location zstd_installed.tar)
+
+        extract_source $(location @perl_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            export BUILD_ZLIB=False
+            export BUILD_BZIP2=0
+            sh Configure -des                              \
+             -D prefix=/usr                                \
+             -D vendorprefix=/usr                          \
+             -D privlib=/usr/lib/perl5/5.40/core_perl      \
+             -D archlib=/usr/lib/perl5/5.40/core_perl      \
+             -D sitelib=/usr/lib/perl5/5.40/site_perl      \
+             -D sitearch=/usr/lib/perl5/5.40/site_perl     \
+             -D vendorlib=/usr/lib/perl5/5.40/vendor_perl  \
+             -D vendorarch=/usr/lib/perl5/5.40/vendor_perl \
+             -D man1dir=/usr/share/man/man1                \
+             -D man3dir=/usr/share/man/man3                \
+             -D pager="/usr/bin/less -isR"                 \
+             -D useshrplib                                 \
+             -D usethreads
+            make
+            make install
+        "
+
+        # Remove files other than the ones installed by previous perl
+        cd $$START_DIR
+        tar tf $(location perl_installed.tar) | grep -v '/$$' > files_to_keep.txt
+        grep -v -f files_to_keep.txt extracted_files.txt > extracted_files.txt.tmp
+        mv extracted_files.txt.tmp extracted_files.txt
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        $$TAR -cf "$@" -C "$$LFS" .
+    """,
+    tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/perl.html"],
+)
