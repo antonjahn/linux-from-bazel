@@ -161,6 +161,9 @@ INETUTILS_SHA256 = "87697d60a31e10b5cb86a9f0651e1ec7bee98320d048c0739431aac3d576
 LESS_VERSION = "661"
 LESS_SHA256 = "2b5f0167216e3ef0ffcb0c31c374e287eb035e4e223d5dae315c2783b6e738ed"
 
+XML_PARSER_VERSION = "2.47"
+XML_PARSER_SHA256 = "ad4aae643ec784f489b956abe952432871a622d4e2b5c619e8855accbfc4d1d8"
+
 def _fetch_lfs_sources_impl(_ctx):
     """Implementation function for the fetch_lfs_sources module extension."""
     http_file(
@@ -506,6 +509,14 @@ def _fetch_lfs_sources_impl(_ctx):
         name = "less_src.tar",
         sha256 = LESS_SHA256,
         urls = ["https://www.greenwoodsoftware.com/less/less-{}.tar.gz".format(LESS_VERSION)],
+    )
+
+    http_file(
+        name = "xml_parser_src.tar",
+        sha256 = XML_PARSER_SHA256,
+        urls = [
+            "https://cpan.metacpan.org/authors/id/T/TO/TODDR/XML-Parser-{}.tar.gz".format(XML_PARSER_VERSION),
+        ],
     )
 
 fetch_lfs_sources = module_extension(

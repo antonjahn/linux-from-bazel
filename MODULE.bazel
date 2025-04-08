@@ -65,6 +65,7 @@ use_repo(
     "tcl_src.tar",
     "texinfo_src.tar",
     "util_linux_src.tar",
+    "xml_parser_src.tar",
     "xz_src.tar",
     "zlib_src.tar",
     "zstd_src.tar",

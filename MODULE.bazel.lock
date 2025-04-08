@@ -67,7 +67,7 @@
   "moduleExtensions": {
     "//:deps.bzl%fetch_lfs_sources": {
       "general": {
-        "bzlTransitiveDigest": "XwfGC/xedu8yQEl3mdVsjWpNui6bo6GrieUH0XPUmbQ=",
+        "bzlTransitiveDigest": "rv7OL0OdpBbfIO7D7eGi/xf9QPs4DA6j5J2sZghblUQ=",
         "usagesDigest": "8KVGcCKAx4FXOGHTcTzdAGXiObW6Ride6NhFDssPDVs=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -622,6 +622,16 @@
               "sha256": "2b5f0167216e3ef0ffcb0c31c374e287eb035e4e223d5dae315c2783b6e738ed",
               "urls": [
                 "https://www.greenwoodsoftware.com/less/less-661.tar.gz"
+              ]
+            }
+          },
+          "xml_parser_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "ad4aae643ec784f489b956abe952432871a622d4e2b5c619e8855accbfc4d1d8",
+              "urls": [
+                "https://cpan.metacpan.org/authors/id/T/TO/TODDR/XML-Parser-2.47.tar.gz"
               ]
             }
           }
