@@ -34,3 +34,4 @@ jobs:
               echo "Error: Changes in 'doc' directory. Update the documentation by running 'scripts/bigpicture.sh' and commit the changes."
               exit 1
             fi
+            bazel build -j 1 //:image_temporary_rootfs
