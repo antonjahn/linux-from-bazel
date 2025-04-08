@@ -158,6 +158,9 @@ EXPAT_SHA256 = "ee14b4c5d8908b1bec37ad937607eab183d4d9806a08adee472c3c3121d27364
 INETUTILS_VERSION = "2.5"
 INETUTILS_SHA256 = "87697d60a31e10b5cb86a9f0651e1ec7bee98320d048c0739431aac3d5764fb6"
 
+LESS_VERSION = "661"
+LESS_SHA256 = "2b5f0167216e3ef0ffcb0c31c374e287eb035e4e223d5dae315c2783b6e738ed"
+
 def _fetch_lfs_sources_impl(_ctx):
     """Implementation function for the fetch_lfs_sources module extension."""
     http_file(
@@ -497,6 +500,12 @@ def _fetch_lfs_sources_impl(_ctx):
         name = "inetutils_src.tar",
         sha256 = INETUTILS_SHA256,
         urls = ["https://ftp.gnu.org/gnu/inetutils/inetutils-{}.tar.xz".format(INETUTILS_VERSION)],
+    )
+
+    http_file(
+        name = "less_src.tar",
+        sha256 = LESS_SHA256,
+        urls = ["https://www.greenwoodsoftware.com/less/less-{}.tar.gz".format(LESS_VERSION)],
     )
 
 fetch_lfs_sources = module_extension(

@@ -67,7 +67,7 @@
   "moduleExtensions": {
     "//:deps.bzl%fetch_lfs_sources": {
       "general": {
-        "bzlTransitiveDigest": "1MIT3vglE3FTXZZTJBteGPzF1a6Z/VDc6cTg4EV0q44=",
+        "bzlTransitiveDigest": "XwfGC/xedu8yQEl3mdVsjWpNui6bo6GrieUH0XPUmbQ=",
         "usagesDigest": "8KVGcCKAx4FXOGHTcTzdAGXiObW6Ride6NhFDssPDVs=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -612,6 +612,16 @@
               "sha256": "87697d60a31e10b5cb86a9f0651e1ec7bee98320d048c0739431aac3d5764fb6",
               "urls": [
                 "https://ftp.gnu.org/gnu/inetutils/inetutils-2.5.tar.xz"
+              ]
+            }
+          },
+          "less_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "2b5f0167216e3ef0ffcb0c31c374e287eb035e4e223d5dae315c2783b6e738ed",
+              "urls": [
+                "https://www.greenwoodsoftware.com/less/less-661.tar.gz"
               ]
             }
           }
