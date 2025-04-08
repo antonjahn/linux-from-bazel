@@ -1,3 +1,4 @@
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("//:deps.bzl", "ACL_VERSION", "ATTR_VERSION", "BASH_VERSION", "BISON_VERSION", "DEJAGNU_VERSION", "EXPAT_VERSION", "FLEX_VERSION", "GCC_VERSION", "GETTEXT_VERSION", "GLIBC_VERSION", "GMP_VERSION", "GPERF_VERSION", "MPC_VERSION", "MPFR_VERSION", "PERL_VERSION", "PKGCONF_VERSION", "READLINE_VERSION", "SED_VERSION", "UTIL_LINUX_VERSION", "XZ_VERSION")
 
 # Setup environment and provide "package-manager" functions

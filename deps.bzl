@@ -155,7 +155,7 @@ GPERF_SHA256 = "588546b945bba4b70b6a3a616e80b4ab466e3f33024a352fc2198112cdbb3ae2
 EXPAT_VERSION = "2.6.2"
 EXPAT_SHA256 = "ee14b4c5d8908b1bec37ad937607eab183d4d9806a08adee472c3c3121d27364"
 
-def _fetch_lfs_sources_impl(ctx):
+def _fetch_lfs_sources_impl(_ctx):
     """Implementation function for the fetch_lfs_sources module extension."""
     http_file(
         name = "binutils_src.tar",

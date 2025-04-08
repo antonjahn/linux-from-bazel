@@ -5,6 +5,8 @@ module(
     version = "0.1.0",
 )
 
+bazel_dep(name = "rules_shell", version = "0.4.0")
+
 # Load the function that defines our http_file repositories
 lfs_sources = use_extension("//:deps.bzl", "fetch_lfs_sources")
 
