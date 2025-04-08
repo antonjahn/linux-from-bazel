@@ -6,6 +6,13 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target to build'
+        required: true
+        default: '//:image_temporary_rootfs'
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,4 +41,5 @@ jobs:
           fi
       - name: Build
         run: |
-          bazel build --keep_going -j 1 //:image_temporary_rootfs
+          target=${{ github.event.inputs.target || '//:image_temporary_rootfs' }}
+          bazel build --keep_going -j 1 "$target"
