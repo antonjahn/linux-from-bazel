@@ -11,7 +11,7 @@ export LFS_TGT="$$(uname -m)-lfs-linux-gnu"
 export PATH="$$LFS/tools/bin:$$PATH"
 mkdir -p "$$LFS"
 mkdir -p "$$WORK_DIR"
-export TAR="tar --sort=name --mtime='@0' --owner=0 --group=0 --numeric-owner"
+export TAR="tar --sort=name --mtime=2023-01-01 --owner=0 --group=0 --numeric-owner"
 
 EXTRACTED_FILES="$$START_DIR/extracted_files.txt"
 
@@ -144,7 +144,7 @@ genrule(
         "@linux_kernel_src.tar//file",
     ],
     outs = ["linux_headers_installed.tar"],
-    cmd = """
+    cmd = COMMON_SCRIPT + """
         set -euo pipefail
         set -x
         START_DIR="$$PWD"
