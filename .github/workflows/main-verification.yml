@@ -15,23 +15,23 @@ jobs:
     steps:
       - name: Checkout (GitHub)
         uses: actions/checkout@v4
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+      - uses: bazel-contrib/setup-bazel@0.14.0
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Check tool versions in devcontainer
-        uses: devcontainers/ci@v0.3
-        with:
-          imageName: ghcr.io/antonjahn/linux-bazel-devcontainer
-          cacheFrom: ghcr.io/antonjahn/linux-bazel-devcontainer
-          push: always
-          runCmd: |
-            scripts/version-check.sh
-            scripts/bigpicture.sh
-            if [[ $(git diff --stat doc) != '' ]]; then
-              echo "Error: Changes in 'doc' directory. Update the documentation by running 'scripts/bigpicture.sh' and commit the changes."
-              exit 1
-            fi
-            bazel build -j 1 //:image_temporary_rootfs
+          # Avoid downloading Bazel every time.
+          bazelisk-cache: true
+          # Store build cache per workflow.
+          disk-cache: ${{ github.workflow }}
+          # Share repository cache between workflows.
+          repository-cache: true
+      - run: .devcontainer/post_create.sh
+      - run: scripts/version-check.sh
+      - name: Check bigpicture for changes
+        run: |
+          scripts/bigpicture.sh
+          if [[ $(git diff --stat doc) != '' ]]; then
+            echo "Error: Changes in 'doc' directory. Update the documentation by running 'scripts/bigpicture.sh' and commit the changes."
+            exit 1
+          fi
+      - name: Build
+        run: |
+          bazel build -j 1 //:image_temporary_rootfs
