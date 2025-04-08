@@ -3162,3 +3162,54 @@ genrule(
         expat_version = EXPAT_VERSION,
     ),
 )
+
+genrule(
+    name = "build_inetutils",
+    srcs = [
+        "@inetutils_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "mpc_installed.tar",
+        "mpfr_installed.tar",
+        "gmp_installed.tar",
+        "zlib_installed.tar",
+        "zstd_installed.tar",
+    ],
+    outs = ["inetutils_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location mpc_installed.tar)
+        extract_dependency $(location mpfr_installed.tar)
+        extract_dependency $(location gmp_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location zstd_installed.tar)
+
+        extract_source $(location @inetutils_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            sed -i 's/def HAVE_TERMCAP_TGETENT/ 1/' telnet/telnet.c
+            ./configure --prefix=/usr \
+                        --bindir=/usr/bin \
+                        --localstatedir=/var \
+                        --disable-logger \
+                        --disable-whois \
+                        --disable-rcp \
+                        --disable-rexec \
+                        --disable-rlogin \
+                        --disable-rsh \
+                        --disable-servers
+            make
+            make install
+            mv -v /usr/{,s}bin/ifconfig
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        $$TAR -cf "$@" -C "$$LFS" .
+    """,
+    tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/inetutils.html"],
+)

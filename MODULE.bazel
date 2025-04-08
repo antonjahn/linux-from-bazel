@@ -40,6 +40,7 @@ use_repo(
     "grep_src.tar",
     "gzip_src.tar",
     "iana_etc_src.tar",
+    "inetutils_src.tar",
     "libcap_src.tar",
     "libtool_src.tar",
     "libxcrypt_src.tar",

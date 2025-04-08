@@ -155,6 +155,9 @@ GPERF_SHA256 = "588546b945bba4b70b6a3a616e80b4ab466e3f33024a352fc2198112cdbb3ae2
 EXPAT_VERSION = "2.6.2"
 EXPAT_SHA256 = "ee14b4c5d8908b1bec37ad937607eab183d4d9806a08adee472c3c3121d27364"
 
+INETUTILS_VERSION = "2.5"
+INETUTILS_SHA256 = "87697d60a31e10b5cb86a9f0651e1ec7bee98320d048c0739431aac3d5764fb6"
+
 def _fetch_lfs_sources_impl(_ctx):
     """Implementation function for the fetch_lfs_sources module extension."""
     http_file(
@@ -488,6 +491,12 @@ def _fetch_lfs_sources_impl(_ctx):
                 EXPAT_VERSION.replace(".", "_"),
             ),
         ],
+    )
+
+    http_file(
+        name = "inetutils_src.tar",
+        sha256 = INETUTILS_SHA256,
+        urls = ["https://ftp.gnu.org/gnu/inetutils/inetutils-{}.tar.xz".format(INETUTILS_VERSION)],
     )
 
 fetch_lfs_sources = module_extension(
