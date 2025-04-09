@@ -41,6 +41,7 @@ use_repo(
     "gzip_src.tar",
     "iana_etc_src.tar",
     "inetutils_src.tar",
+    "intltool_src.tar",
     "less_src.tar",
     "libcap_src.tar",
     "libtool_src.tar",

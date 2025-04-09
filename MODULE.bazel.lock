@@ -67,7 +67,7 @@
   "moduleExtensions": {
     "//:deps.bzl%fetch_lfs_sources": {
       "general": {
-        "bzlTransitiveDigest": "rv7OL0OdpBbfIO7D7eGi/xf9QPs4DA6j5J2sZghblUQ=",
+        "bzlTransitiveDigest": "BkIc9QqAC/bxetlOJHJ984/7sABw7H60lQN+iK3GMyc=",
         "usagesDigest": "8KVGcCKAx4FXOGHTcTzdAGXiObW6Ride6NhFDssPDVs=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -632,6 +632,16 @@
               "sha256": "ad4aae643ec784f489b956abe952432871a622d4e2b5c619e8855accbfc4d1d8",
               "urls": [
                 "https://cpan.metacpan.org/authors/id/T/TO/TODDR/XML-Parser-2.47.tar.gz"
+              ]
+            }
+          },
+          "intltool_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "67c74d94196b153b774ab9f89b2fa6c6ba79352407037c8c14d5aeb334e959cd",
+              "urls": [
+                "https://launchpad.net/intltool/trunk/0.51.0/+download/intltool-0.51.0.tar.gz"
               ]
             }
           }

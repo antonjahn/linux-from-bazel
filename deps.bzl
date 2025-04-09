@@ -164,6 +164,9 @@ LESS_SHA256 = "2b5f0167216e3ef0ffcb0c31c374e287eb035e4e223d5dae315c2783b6e738ed"
 XML_PARSER_VERSION = "2.47"
 XML_PARSER_SHA256 = "ad4aae643ec784f489b956abe952432871a622d4e2b5c619e8855accbfc4d1d8"
 
+INTLTOOL_VERSION = "0.51.0"
+INTLTOOL_SHA256 = "67c74d94196b153b774ab9f89b2fa6c6ba79352407037c8c14d5aeb334e959cd"
+
 def _fetch_lfs_sources_impl(_ctx):
     """Implementation function for the fetch_lfs_sources module extension."""
     http_file(
@@ -517,6 +520,12 @@ def _fetch_lfs_sources_impl(_ctx):
         urls = [
             "https://cpan.metacpan.org/authors/id/T/TO/TODDR/XML-Parser-{}.tar.gz".format(XML_PARSER_VERSION),
         ],
+    )
+
+    http_file(
+        name = "intltool_src.tar",
+        sha256 = INTLTOOL_SHA256,
+        urls = ["https://launchpad.net/intltool/trunk/{0}/+download/intltool-{0}.tar.gz".format(INTLTOOL_VERSION)],
     )
 
 fetch_lfs_sources = module_extension(
