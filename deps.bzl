@@ -167,6 +167,9 @@ XML_PARSER_SHA256 = "ad4aae643ec784f489b956abe952432871a622d4e2b5c619e8855accbfc
 INTLTOOL_VERSION = "0.51.0"
 INTLTOOL_SHA256 = "67c74d94196b153b774ab9f89b2fa6c6ba79352407037c8c14d5aeb334e959cd"
 
+AUTOCONF_VERSION = "2.72"
+AUTOCONF_SHA256 = "ba885c1319578d6c94d46e9b0dceb4014caafe2490e437a0dbca3f270a223f5a"
+
 def _fetch_lfs_sources_impl(_ctx):
     """Implementation function for the fetch_lfs_sources module extension."""
     http_file(
@@ -526,6 +529,12 @@ def _fetch_lfs_sources_impl(_ctx):
         name = "intltool_src.tar",
         sha256 = INTLTOOL_SHA256,
         urls = ["https://launchpad.net/intltool/trunk/{0}/+download/intltool-{0}.tar.gz".format(INTLTOOL_VERSION)],
+    )
+
+    http_file(
+        name = "autoconf_src.tar",
+        sha256 = AUTOCONF_SHA256,
+        urls = ["https://ftp.gnu.org/gnu/autoconf/autoconf-{}.tar.xz".format(AUTOCONF_VERSION)],
     )
 
 fetch_lfs_sources = module_extension(
