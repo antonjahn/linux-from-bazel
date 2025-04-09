@@ -25,6 +25,7 @@ use_repo(
     "coreutils_src.tar",
     "dejagnu_src.tar",
     "diffutils_src.tar",
+    "elfutils_src.tar",
     "expat_src.tar",
     "expect_gcc14_patch",
     "expect_src.tar",

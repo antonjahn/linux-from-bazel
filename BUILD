@@ -3599,3 +3599,52 @@ genrule(
     """,
     tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/kmod.html"],
 )
+
+genrule(
+    name = "build_libelf",
+    srcs = [
+        "@elfutils_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "bzip2_installed.tar",
+        "pkgconf_installed.tar",
+        "mpc_installed.tar",
+        "mpfr_installed.tar",
+        "gmp_installed.tar",
+        "zlib_installed.tar",
+        "zstd_installed.tar",
+    ],
+    outs = ["libelf_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location bzip2_installed.tar)
+        extract_dependency $(location pkgconf_installed.tar)
+        extract_dependency $(location mpc_installed.tar)
+        extract_dependency $(location mpfr_installed.tar)
+        extract_dependency $(location gmp_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location zstd_installed.tar)
+
+        extract_source $(location @elfutils_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr \
+                        --disable-debuginfod \
+                        --enable-libdebuginfod=dummy
+            make
+            make check
+            make -C libelf install
+            install -vm644 config/libelf.pc /usr/lib/pkgconfig
+            rm /usr/lib/libelf.a
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        $$TAR -cf "$@" -C "$$LFS" .
+    """,
+    tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/libelf.html"],
+)

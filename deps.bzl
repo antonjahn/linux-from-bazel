@@ -179,6 +179,9 @@ OPENSSL_SHA256 = "777cd596284c883375a2a7a11bf5d2786fc5413255efab20c50d6ffe6d020b
 KMOD_VERSION = "33"
 KMOD_SHA256 = "dc768b3155172091f56dc69430b5481f2d76ecd9ccb54ead8c2540dbcf5ea9bc"
 
+ELFUTILS_VERSION = "0.191"
+ELFUTILS_SHA256 = "df76db71366d1d708365fc7a6c60ca48398f14367eb2b8954efc8897147ad871"
+
 def _fetch_lfs_sources_impl(_ctx):
     """Implementation function for the fetch_lfs_sources module extension."""
     http_file(
@@ -564,6 +567,12 @@ def _fetch_lfs_sources_impl(_ctx):
         urls = [" https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-{0}.tar.xz".format(
             KMOD_VERSION,
         )],
+    )
+
+    http_file(
+        name = "elfutils_src.tar",
+        sha256 = ELFUTILS_SHA256,
+        urls = ["https://sourceware.org/ftp/elfutils/{0}/elfutils-{0}.tar.bz2".format(ELFUTILS_VERSION)],
     )
 
 fetch_lfs_sources = module_extension(
