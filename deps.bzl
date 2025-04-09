@@ -173,6 +173,9 @@ AUTOCONF_SHA256 = "ba885c1319578d6c94d46e9b0dceb4014caafe2490e437a0dbca3f270a223
 AUTOMAKE_VERSION = "1.17"
 AUTOMAKE_SHA256 = "8920c1fc411e13b90bf704ef9db6f29d540e76d232cb3b2c9f4dc4cc599bd990"
 
+OPENSSL_VERSION = "3.3.1"
+OPENSSL_SHA256 = "777cd596284c883375a2a7a11bf5d2786fc5413255efab20c50d6ffe6d020b7e"
+
 def _fetch_lfs_sources_impl(_ctx):
     """Implementation function for the fetch_lfs_sources module extension."""
     http_file(
@@ -544,6 +547,12 @@ def _fetch_lfs_sources_impl(_ctx):
         name = "automake_src.tar",
         sha256 = AUTOMAKE_SHA256,
         urls = ["https://ftp.gnu.org/gnu/automake/automake-{}.tar.xz".format(AUTOMAKE_VERSION)],
+    )
+
+    http_file(
+        name = "openssl_src.tar",
+        sha256 = OPENSSL_SHA256,
+        urls = ["https://www.openssl.org/source/openssl-{}.tar.gz".format(OPENSSL_VERSION)],
     )
 
 fetch_lfs_sources = module_extension(

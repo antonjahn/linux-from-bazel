@@ -67,7 +67,7 @@
   "moduleExtensions": {
     "//:deps.bzl%fetch_lfs_sources": {
       "general": {
-        "bzlTransitiveDigest": "FNIKYHPJB+GRP7gUcVJAJCFbD/N6iUe4wG8Ki8kSJuU=",
+        "bzlTransitiveDigest": "1mU+muT8VuMYFJzxI1nDwCn8MdQeaCx3+WF8blOXPM8=",
         "usagesDigest": "8KVGcCKAx4FXOGHTcTzdAGXiObW6Ride6NhFDssPDVs=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -662,6 +662,16 @@
               "sha256": "8920c1fc411e13b90bf704ef9db6f29d540e76d232cb3b2c9f4dc4cc599bd990",
               "urls": [
                 "https://ftp.gnu.org/gnu/automake/automake-1.17.tar.xz"
+              ]
+            }
+          },
+          "openssl_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "777cd596284c883375a2a7a11bf5d2786fc5413255efab20c50d6ffe6d020b7e",
+              "urls": [
+                "https://www.openssl.org/source/openssl-3.3.1.tar.gz"
               ]
             }
           }

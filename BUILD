@@ -3497,3 +3497,49 @@ genrule(
     """,
     tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/automake.html"],
 )
+
+genrule(
+    name = "build_openssl",
+    srcs = [
+        "@openssl_src.tar//file",
+        "image_initial_rootfs.tar",
+        "gcc_final_installed.tar",
+        "mpc_installed.tar",
+        "mpfr_installed.tar",
+        "gmp_installed.tar",
+        "zlib_installed.tar",
+        "zstd_installed.tar",
+    ],
+    outs = ["openssl_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location mpc_installed.tar)
+        extract_dependency $(location mpfr_installed.tar)
+        extract_dependency $(location gmp_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location zstd_installed.tar)
+
+        extract_source $(location @openssl_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./config --prefix=/usr \
+                     --openssldir=/etc/ssl \
+                     --libdir=lib \
+                     shared zlib-dynamic
+            make
+            # HARNESS_JOBS=$$(nproc) make test
+            # Deviation: some tests fail, due to missing network capability in the sandbox
+            sed -i '/INSTALL_LIBS/s/libcrypto.a libssl.a//' Makefile
+            make MANSUFFIX=ssl install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        $$TAR -cf "$@" -C "$$LFS" .
+    """,
+    tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/openssl.html"],
+)
