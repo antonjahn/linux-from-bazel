@@ -16,6 +16,7 @@ use_repo(
     "acl_src.tar",
     "attr_src.tar",
     "autoconf_src.tar",
+    "automake_src.tar",
     "bash_src.tar",
     "bc_src.tar",
     "binutils_src.tar",

@@ -3449,3 +3449,51 @@ genrule(
     """,
     tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/autoconf.html"],
 )
+
+genrule(
+    name = "build_automake",
+    srcs = [
+        "@automake_src.tar//file",
+        "image_initial_rootfs.tar",
+        "autoconf_installed.tar",
+        "bzip2_installed.tar",
+        "gcc_final_installed.tar",
+        "mpc_installed.tar",
+        "libtool_final_installed.tar",
+        "mpfr_installed.tar",
+        "gmp_installed.tar",
+        "zlib_installed.tar",
+        "zstd_installed.tar",
+    ],
+    outs = ["automake_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location autoconf_installed.tar)
+        extract_dependency $(location bzip2_installed.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location mpc_installed.tar)
+        extract_dependency $(location libtool_final_installed.tar)
+        extract_dependency $(location mpfr_installed.tar)
+        extract_dependency $(location gmp_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location zstd_installed.tar)
+
+        extract_source $(location @automake_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr
+            make
+            # make -j$$(($$(nproc)>4?$$(nproc):4)) check
+            # Deviation: 2 tests are failing due to missing user/group ids in the sandbox, "Cannot change ownership to uid 1000, gid 1000: Invalid argument"
+            make install
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        $$TAR -cf "$@" -C "$$LFS" .
+    """,
+    tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/automake.html"],
+)
