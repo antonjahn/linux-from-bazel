@@ -44,6 +44,7 @@ use_repo(
     "iana_etc_src.tar",
     "inetutils_src.tar",
     "intltool_src.tar",
+    "kmod_src.tar",
     "less_src.tar",
     "libcap_src.tar",
     "libtool_src.tar",

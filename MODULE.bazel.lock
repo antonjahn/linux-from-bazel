@@ -67,7 +67,7 @@
   "moduleExtensions": {
     "//:deps.bzl%fetch_lfs_sources": {
       "general": {
-        "bzlTransitiveDigest": "1mU+muT8VuMYFJzxI1nDwCn8MdQeaCx3+WF8blOXPM8=",
+        "bzlTransitiveDigest": "8PdF3toV43So5CX7egKFm7Xdx//hh7qtr409IEJufUY=",
         "usagesDigest": "8KVGcCKAx4FXOGHTcTzdAGXiObW6Ride6NhFDssPDVs=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -672,6 +672,16 @@
               "sha256": "777cd596284c883375a2a7a11bf5d2786fc5413255efab20c50d6ffe6d020b7e",
               "urls": [
                 "https://www.openssl.org/source/openssl-3.3.1.tar.gz"
+              ]
+            }
+          },
+          "kmod_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "dc768b3155172091f56dc69430b5481f2d76ecd9ccb54ead8c2540dbcf5ea9bc",
+              "urls": [
+                " https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-33.tar.xz"
               ]
             }
           }

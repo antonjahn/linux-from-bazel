@@ -3543,3 +3543,59 @@ genrule(
     """,
     tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/openssl.html"],
 )
+
+genrule(
+    name = "build_kmod",
+    srcs = [
+        "@kmod_src.tar//file",
+        "image_initial_rootfs.tar",
+        "openssl_installed.tar",
+        "pkgconf_installed.tar",
+        "gcc_final_installed.tar",
+        "mpc_installed.tar",
+        "mpfr_installed.tar",
+        "gmp_installed.tar",
+        "zlib_installed.tar",
+        "zstd_installed.tar",
+    ],
+    outs = ["kmod_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location gcc_final_installed.tar)
+        extract_dependency $(location openssl_installed.tar)
+        extract_dependency $(location pkgconf_installed.tar)
+        extract_dependency $(location mpc_installed.tar)
+        extract_dependency $(location mpfr_installed.tar)
+        extract_dependency $(location gmp_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+        extract_dependency $(location zstd_installed.tar)
+
+        extract_source $(location @kmod_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr     \
+                --sysconfdir=/etc \
+                --with-openssl    \
+                --with-xz         \
+                --with-zstd       \
+                --with-zlib       \
+                --disable-manpages
+            make
+            make install
+
+            ln -sfv ../bin/kmod /usr/sbin/depmod && rm -fv /usr/bin/depmod
+            ln -sfv ../bin/kmod /usr/sbin/insmod && rm -fv /usr/bin/insmod
+            ln -sfv ../bin/kmod /usr/sbin/modinfo && rm -fv /usr/bin/modinfo
+            ln -sfv ../bin/kmod /usr/sbin/modprobe && rm -fv /usr/bin/modprobe
+            ln -sfv ../bin/kmod /usr/sbin/rmmod && rm -fv /usr/bin/rmmod
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        $$TAR -cf "$@" -C "$$LFS" .
+    """,
+    tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/kmod.html"],
+)

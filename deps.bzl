@@ -176,6 +176,9 @@ AUTOMAKE_SHA256 = "8920c1fc411e13b90bf704ef9db6f29d540e76d232cb3b2c9f4dc4cc599bd
 OPENSSL_VERSION = "3.3.1"
 OPENSSL_SHA256 = "777cd596284c883375a2a7a11bf5d2786fc5413255efab20c50d6ffe6d020b7e"
 
+KMOD_VERSION = "33"
+KMOD_SHA256 = "dc768b3155172091f56dc69430b5481f2d76ecd9ccb54ead8c2540dbcf5ea9bc"
+
 def _fetch_lfs_sources_impl(_ctx):
     """Implementation function for the fetch_lfs_sources module extension."""
     http_file(
@@ -553,6 +556,14 @@ def _fetch_lfs_sources_impl(_ctx):
         name = "openssl_src.tar",
         sha256 = OPENSSL_SHA256,
         urls = ["https://www.openssl.org/source/openssl-{}.tar.gz".format(OPENSSL_VERSION)],
+    )
+
+    http_file(
+        name = "kmod_src.tar",
+        sha256 = KMOD_SHA256,
+        urls = [" https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-{0}.tar.xz".format(
+            KMOD_VERSION,
+        )],
     )
 
 fetch_lfs_sources = module_extension(
