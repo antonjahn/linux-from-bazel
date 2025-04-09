@@ -182,6 +182,9 @@ KMOD_SHA256 = "dc768b3155172091f56dc69430b5481f2d76ecd9ccb54ead8c2540dbcf5ea9bc"
 ELFUTILS_VERSION = "0.191"
 ELFUTILS_SHA256 = "df76db71366d1d708365fc7a6c60ca48398f14367eb2b8954efc8897147ad871"
 
+LIBFFI_VERSION = "3.4.6"
+LIBFFI_SHA256 = "b0dea9df23c863a7a50e825440f3ebffabd65df1497108e5d437747843895a4e"
+
 def _fetch_lfs_sources_impl(_ctx):
     """Implementation function for the fetch_lfs_sources module extension."""
     http_file(
@@ -573,6 +576,14 @@ def _fetch_lfs_sources_impl(_ctx):
         name = "elfutils_src.tar",
         sha256 = ELFUTILS_SHA256,
         urls = ["https://sourceware.org/ftp/elfutils/{0}/elfutils-{0}.tar.bz2".format(ELFUTILS_VERSION)],
+    )
+
+    http_file(
+        name = "libffi_src.tar",
+        sha256 = LIBFFI_SHA256,
+        urls = [
+            "https://github.com/libffi/libffi/releases/download/v{0}/libffi-{0}.tar.gz".format(LIBFFI_VERSION),
+        ],
     )
 
 fetch_lfs_sources = module_extension(

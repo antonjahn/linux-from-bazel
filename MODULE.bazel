@@ -48,6 +48,7 @@ use_repo(
     "kmod_src.tar",
     "less_src.tar",
     "libcap_src.tar",
+    "libffi_src.tar",
     "libtool_src.tar",
     "libxcrypt_src.tar",
     "linux_kernel_src.tar",

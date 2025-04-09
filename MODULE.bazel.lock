@@ -67,7 +67,7 @@
   "moduleExtensions": {
     "//:deps.bzl%fetch_lfs_sources": {
       "general": {
-        "bzlTransitiveDigest": "Sr47H1+XKQT6M3ffBlHHZuSIpY8w6SSb19X9Y926Bdo=",
+        "bzlTransitiveDigest": "O9tO3UsPEtevWSgGCkvg1KohN/HkTrWOdVsGRC4yb8A=",
         "usagesDigest": "8KVGcCKAx4FXOGHTcTzdAGXiObW6Ride6NhFDssPDVs=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -692,6 +692,16 @@
               "sha256": "df76db71366d1d708365fc7a6c60ca48398f14367eb2b8954efc8897147ad871",
               "urls": [
                 "https://sourceware.org/ftp/elfutils/0.191/elfutils-0.191.tar.bz2"
+              ]
+            }
+          },
+          "libffi_src.tar": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "sha256": "b0dea9df23c863a7a50e825440f3ebffabd65df1497108e5d437747843895a4e",
+              "urls": [
+                "https://github.com/libffi/libffi/releases/download/v3.4.6/libffi-3.4.6.tar.gz"
               ]
             }
           }
