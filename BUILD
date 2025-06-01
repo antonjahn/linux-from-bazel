@@ -3689,3 +3689,62 @@ genrule(
     """,
     tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/libffi.html"],
 )
+
+genrule(
+    # Deviation: The test suite fails due to missing user/group ids in the sandbox, and missing network capability in the sandbox
+    name = "build_python_final",
+    srcs = [
+        "@python_src.tar//file",
+        "bzip2_installed.tar",
+        "expat_installed.tar",
+        "gcc_final_installed.tar",
+        "gettext_final_installed.tar",
+        "gmp_installed.tar",
+        "gdbm_final.tar",
+        "grep_final_installed.tar",
+        "image_initial_rootfs.tar",
+        "libffi_installed.tar",
+        "libxcrypt_installed.tar",
+        "mpc_installed.tar",
+        "mpfr_installed.tar",
+        "ncurses_final_installed.tar",
+        "openssl_installed.tar",
+        "pkgconf_installed.tar",
+        "readline_installed.tar",
+        "zlib_installed.tar",
+        "zstd_installed.tar",
+    ],
+    outs = ["python_final_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        for dep in $(SRCS); do
+            if [[ "$$dep" == *_installed.tar ]]; then
+                extract_dependency "$$dep"
+            fi
+        done
+
+
+        extract_source $(location @python_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            ./configure --prefix=/usr        \
+                        --enable-shared      \
+                        --with-system-expat  \
+                        --enable-optimizations
+            make
+            # make test TESTOPTS='--timeout 120' || true
+            make install
+            echo '[global]' > /etc/pip.conf
+            echo 'root-user-action = ignore' >> /etc/pip.conf
+            echo 'disable-pip-version-check = true' >> /etc/pip.conf
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        $$TAR -cf "$@" -C "$$LFS" .
+    """,
+    tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/Python.html"],
+)
