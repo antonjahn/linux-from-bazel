@@ -3748,3 +3748,38 @@ genrule(
     """,
     tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/Python.html"],
 )
+
+genrule(
+    name = "build_flit_core",
+    srcs = [
+        "@flit_core_src.tar//file",
+        "image_initial_rootfs.tar",
+        "python_final_installed.tar",
+        "gettext_final_installed.tar",
+        "openssl_installed.tar",
+        "zlib_installed.tar",
+    ],
+    outs = ["flit_core_installed.tar"],
+    cmd = COMMON_SCRIPT + ENTER_LFS_SCRIPT + """
+        extract_dependency $(location image_initial_rootfs.tar)
+        extract_dependency $(location python_final_installed.tar)
+        extract_dependency $(location gettext_final_installed.tar)
+        extract_dependency $(location openssl_installed.tar)
+        extract_dependency $(location zlib_installed.tar)
+
+        extract_source $(location @flit_core_src.tar//file)
+
+        run_bash_script_in_lfs "
+            cd /src
+            pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps .
+            pip3 install --no-index --find-links=dist flit_core
+        "
+
+        cleanup_extracted_dependencies
+        cleanup_source
+
+        cd "$$START_DIR"
+        $$TAR -cf "$@" -C "$$LFS" .
+    """,
+    tags = ["ref=https://www.linuxfromscratch.org/lfs/view/12.2/chapter08/flit-core.html"],
+)

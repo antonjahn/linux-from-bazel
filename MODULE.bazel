@@ -32,6 +32,7 @@ use_repo(
     "file_src.tar",
     "findutils_src.tar",
     "flex_src.tar",
+    "flit_core_src.tar",
     "gawk_src.tar",
     "gcc_src.tar",
     "gdbm_src.tar",
