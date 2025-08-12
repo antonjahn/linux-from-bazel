@@ -21,7 +21,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout (GitHub)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - uses: bazel-contrib/setup-bazel@0.14.0
         with:
           # Avoid downloading Bazel every time.
